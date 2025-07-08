@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\Etc Headers">
+      <UniqueIdentifier>{73c4b1ac-54d4-4f17-94f7-b5e4628a6f2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Framework">
+      <UniqueIdentifier>{609f7791-096b-412e-910e-d04a2ba7ec61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Entry">
+      <UniqueIdentifier>{0a167e8c-07b2-489e-aaff-909deeaef1b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\pch">
+      <UniqueIdentifier>{89c36d52-18fa-436d-b245-7304cd27fc26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\WinCore">
+      <UniqueIdentifier>{1507ab3a-6259-4b5d-88d8-a08069350d78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Framework\D3DCore">
+      <UniqueIdentifier>{673297eb-7945-4c29-a39b-81b233c6b818}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Utility Headers">
+      <UniqueIdentifier>{4ed55697-2b84-4367-a362-5196225db9f5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h">
+      <Filter>소스 파일\Etc Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>소스 파일\Etc Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFramework.h">
+      <Filter>소스 파일\Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>소스 파일\pch</Filter>
+    </ClInclude>
+    <ClInclude Include="WinCore.h">
+      <Filter>소스 파일\WinCore</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DCore.h">
+      <Filter>소스 파일\Framework\D3DCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility.h">
+      <Filter>소스 파일\Utility Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GameFramework.cpp">
+      <Filter>소스 파일\Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="entry.cpp">
+      <Filter>소스 파일\Entry</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>소스 파일\pch</Filter>
+    </ClCompile>
+    <ClCompile Include="WinCore.cpp">
+      <Filter>소스 파일\WinCore</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DCore.cpp">
+      <Filter>소스 파일\Framework\D3DCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility.cpp">
+      <Filter>소스 파일\Utility Headers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="D3D12Framework.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="D3D12Framework.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
