@@ -1,7 +1,6 @@
 #pragma once
 
-class D3DCore
-{
+class D3DCore {
 public:
 	D3DCore(BOOL bEnableDebugLayer, BOOL bEnableGBV);
 
@@ -25,6 +24,9 @@ private:
 	// GPU-CPU Sync
 	void WaitForGPUComplete();
 	void ChangeSwapChainState();
+
+public:
+	ComPtr<ID3D12Device14> GetDevice() const;
 
 
 private:

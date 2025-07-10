@@ -323,6 +323,11 @@ void D3DCore::ChangeSwapChainState()
 	CreateRenderTargetViews();
 }
 
+ComPtr<ID3D12Device14> D3DCore::GetDevice() const
+{
+	return m_pd3dDevice;
+}
+
 void D3DCore::RenderBegin()
 {
 	HRESULT hr;

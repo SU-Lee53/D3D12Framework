@@ -21,6 +21,8 @@
 #include <string>
 #include <array>
 #include <vector>
+#include <span>
+#include <algorithm>
 
 
 // Direct3D related headers
@@ -50,6 +52,8 @@ using namespace DirectX::PackedVector;
 using namespace Microsoft::WRL;
 
 
+extern inline size_t AlignConstantBuffersize(size_t size);
+
 // Import libraries
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -58,6 +62,13 @@ using namespace Microsoft::WRL;
 
 // Additional Helper Headers
 #include "Utility.h"
+#include "ShaderResource.h"
+#include "InputLayout.h"
+
+// Managers
+#include "ResourceManager.h"
 
 // Game Headers
 #include "WinCore.h"
+#include "D3DCore.h"
+#include "GameFramework.h"

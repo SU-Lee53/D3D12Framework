@@ -1,8 +1,7 @@
 #pragma once
 #include "GameFramework.h"
 
-class WinCore
-{
+class WinCore {
 public:
 	WinCore(HINSTANCE hInstance, DWORD dwWidth, DWORD dwHeight, BOOL bEnableDebugLayer, BOOL bEnableGBV);
 

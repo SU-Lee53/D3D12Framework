@@ -24,11 +24,53 @@
     <Filter Include="소스 파일\WinCore">
       <UniqueIdentifier>{1507ab3a-6259-4b5d-88d8-a08069350d78}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Framework\D3DCore">
-      <UniqueIdentifier>{673297eb-7945-4c29-a39b-81b233c6b818}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Utility Headers">
       <UniqueIdentifier>{4ed55697-2b84-4367-a362-5196225db9f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Renderer">
+      <UniqueIdentifier>{b4421932-7cca-4b96-b7bc-7678e2a169ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Renderer\D3DCore">
+      <UniqueIdentifier>{673297eb-7945-4c29-a39b-81b233c6b818}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Renderer\Shader Resources">
+      <UniqueIdentifier>{42d2d150-cf74-404c-840b-334ba8d1be85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Game">
+      <UniqueIdentifier>{6af2260a-cec3-4d9f-a21a-18ba617ac338}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Renderer\Shader Resources\Mesh">
+      <UniqueIdentifier>{6df0c371-89a1-4c2f-997c-39ca63b638e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Game\Scene">
+      <UniqueIdentifier>{8dd9fadd-9c7e-403a-aa09-8bf4b1f13de4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Game\Scene\Base">
+      <UniqueIdentifier>{adb7fcc8-4de0-4009-af49-ac15f3b2a490}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Game\Scene\Scenes">
+      <UniqueIdentifier>{1723cfb6-6d52-466c-9612-812b81721af5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Game\GameObject">
+      <UniqueIdentifier>{95a8aca9-eaab-42df-8ad1-49bf79c04b43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Managers">
+      <UniqueIdentifier>{6f52f895-1351-4606-9592-576905f9d5b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Renderer\Shader">
+      <UniqueIdentifier>{ae8defd3-cd80-4126-88c4-fe456bf25682}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Renderer\Shader Resources\Base">
+      <UniqueIdentifier>{efa030f5-4f6f-4241-909e-81a00e18a492}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Renderer\RenderPass">
+      <UniqueIdentifier>{95f75459-2d4b-4be0-aff9-55b89ba69d66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Renderer\HLSL">
+      <UniqueIdentifier>{16b92292-37ca-45f9-98c9-1c3e42dc1fce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Renderer\Shader Resources\ResourcePool">
+      <UniqueIdentifier>{a2d8b076-c30a-4a90-83e3-e20b40c812de}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,10 +90,52 @@
       <Filter>소스 파일\WinCore</Filter>
     </ClInclude>
     <ClInclude Include="D3DCore.h">
-      <Filter>소스 파일\Framework\D3DCore</Filter>
+      <Filter>소스 파일\Renderer\D3DCore</Filter>
     </ClInclude>
     <ClInclude Include="Utility.h">
       <Filter>소스 파일\Utility Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>소스 파일\Renderer\Shader Resources\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>소스 파일\Game\Scene\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>소스 파일\Game\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="InputLayout.h">
+      <Filter>소스 파일\Renderer\Shader Resources\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="TestScene.h">
+      <Filter>소스 파일\Game\Scene\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>소스 파일\Renderer\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderResource.h">
+      <Filter>소스 파일\Renderer\Shader Resources\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>소스 파일\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPass.h">
+      <Filter>소스 파일\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipeline.h">
+      <Filter>소스 파일\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="RootSignature.h">
+      <Filter>소스 파일\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderManager.h">
+      <Filter>소스 파일\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>소스 파일\Renderer\Shader Resources\ResourcePool</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstantBufferPool.h">
+      <Filter>소스 파일\Renderer\Shader Resources\ResourcePool</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -68,10 +152,52 @@
       <Filter>소스 파일\WinCore</Filter>
     </ClCompile>
     <ClCompile Include="D3DCore.cpp">
-      <Filter>소스 파일\Framework\D3DCore</Filter>
+      <Filter>소스 파일\Renderer\D3DCore</Filter>
     </ClCompile>
     <ClCompile Include="Utility.cpp">
       <Filter>소스 파일\Utility Headers</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>소스 파일\Renderer\Shader Resources\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>소스 파일\Game\Scene\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>소스 파일\Game\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="InputLayout.cpp">
+      <Filter>소스 파일\Renderer\Shader Resources\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="TestScene.cpp">
+      <Filter>소스 파일\Game\Scene\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>소스 파일\Renderer\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderResource.cpp">
+      <Filter>소스 파일\Renderer\Shader Resources\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>소스 파일\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderPass.cpp">
+      <Filter>소스 파일\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="Pipeline.cpp">
+      <Filter>소스 파일\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="RootSignature.cpp">
+      <Filter>소스 파일\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderManager.cpp">
+      <Filter>소스 파일\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantBuffer.cpp">
+      <Filter>소스 파일\Renderer\Shader Resources\ResourcePool</Filter>
+    </ClCompile>
+    <ClCompile Include="ConstantBufferPool.cpp">
+      <Filter>소스 파일\Renderer\Shader Resources\ResourcePool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -86,5 +212,10 @@
     <Image Include="D3D12Framework.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="HLSL\DiffusedShader.hlsl">
+      <Filter>소스 파일\Renderer\HLSL</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
