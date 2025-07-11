@@ -8,12 +8,9 @@ public:
 
 	virtual void Run() = 0;
 
-
-
 protected:
 	std::shared_ptr<Pipeline> m_pPipeline = nullptr;
 	std::vector<ComPtr<ID3D12Resource>> m_pRTVs;			// for MRT
-
 
 };
 

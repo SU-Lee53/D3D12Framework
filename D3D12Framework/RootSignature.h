@@ -23,7 +23,7 @@ class RootSignature {
 public:
 	RootSignature(ComPtr<ID3D12Device14> pd3dDevice) {}
 	RootSignature(ComPtr<ID3D12Device14> pd3dDevice, D3D12_ROOT_SIGNATURE_FLAGS flags = ROOT_SIGNATURE_FLAG_DEFAULT) {}
-	virtual ~RootSignature();
+	virtual ~RootSignature() {}
 
 	ID3D12RootSignature* Get() const { return m_pRootSignature.Get(); }
 
@@ -61,8 +61,6 @@ public:
 
 
 	virtual ~DiffusedRootSignature() {}
-
-
 
 
 };

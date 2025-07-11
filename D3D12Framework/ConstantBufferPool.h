@@ -10,6 +10,7 @@
 // - D3D12_DESCRIPTOR_HEAP_FLAG_NONE 이 아니므로 사용을 위해 
 //	 D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE 인 Descriptor Heap 에 
 //	 CopyDescriptorsSimple를 수행해야 함
+// - 나중에 딱 필요한 최대 크기만큼함 Pool 크기를 잡아서 사용
 // ================================================================================
 
 template<size_t nMaxCBVCount>
@@ -91,8 +92,12 @@ inline ConstantBufferPool<nMaxCBVCount>::ConstantBufferPool(ComPtr<ID3D12Device1
 template<size_t nMaxCBVCount>
 inline ConstantBuffer& ConstantBufferPool<nMaxCBVCount>::Allocate()
 {
+#ifdef _DEBUG
 	assert(m_nAllocated < nMaxCBVCount);
-
+#else
+	if (m_nAllocated >= nMaxCBVCount) std::exit(99);
+#endif
+	
 	return m_CBuffers[++m_nAllocated];
 }
 

@@ -1,4 +1,7 @@
 #pragma once
+#include "GameObject.h"
+#include "Camera.h"
+
 class Scene {
 public:
 	Scene() {}
@@ -16,8 +19,8 @@ protected:
 	virtual void UpdateObjects() = 0;
 
 protected:
-	std::vector<std::shared_ptr<class GameObject>> pGameObjects = {};
-	std::shared_ptr<class Camera> pMainCamera = nullptr;
+	std::vector<std::shared_ptr<GameObject>> pGameObjects = {};
+	std::shared_ptr<Camera> pMainCamera = nullptr;
 
 };
 
