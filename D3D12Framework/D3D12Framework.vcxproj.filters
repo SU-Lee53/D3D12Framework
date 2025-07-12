@@ -81,6 +81,9 @@
     <Filter Include="소스 파일\Game\GameObject\Components\Base">
       <UniqueIdentifier>{9fb5d069-f649-4e2a-a005-695c286dc845}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Headers">
+      <UniqueIdentifier>{d677f3f0-b145-4f04-8a3f-460b2126aca5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -151,7 +154,12 @@
     <ClInclude Include="Component.h">
       <Filter>소스 파일\Game\GameObject\Components\Base</Filter>
     </ClInclude>
-    <ClInclude Include="Transform.h" />
+    <ClInclude Include="Transform.h">
+      <Filter>소스 파일\Game\GameObject\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Defines.h">
+      <Filter>소스 파일\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameFramework.cpp">
@@ -224,7 +232,7 @@
       <Filter>소스 파일\Game\GameObject\Components\Base</Filter>
     </ClCompile>
     <ClCompile Include="Transform.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Game\GameObject\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

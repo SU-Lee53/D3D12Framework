@@ -10,8 +10,8 @@ public:
 	void Render();
 
 private:
-	std::shared_ptr<D3DCore> pD3DCore = nullptr;
-	std::shared_ptr<Scene> pScene = nullptr;
+	std::shared_ptr<D3DCore> m_pD3DCore = nullptr;
+	std::shared_ptr<Scene> m_pScene = nullptr;
 
 public:
 	// Managers

@@ -31,6 +31,9 @@ protected:
 	UINT							m_nVertices = 0;
 	UINT							m_nOffset = 0;
 
+protected:
+	// Bounding Volume
+	BoundingOrientedBox m_xmOBB;
 };
 
 template<typename T>

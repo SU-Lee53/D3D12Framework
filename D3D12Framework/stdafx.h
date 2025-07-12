@@ -23,6 +23,8 @@
 #include <vector>
 #include <span>
 #include <algorithm>
+#include <utility>
+#include <type_traits>
 
 
 // Direct3D related headers
@@ -61,6 +63,7 @@ extern inline size_t AlignConstantBuffersize(size_t size);
 #pragma comment(lib, "dxguid.lib")
 
 // Additional Helper Headers
+#include "Defines.h"
 #include "Utility.h"
 #include "ShaderResource.h"
 #include "InputLayout.h"

@@ -3,29 +3,31 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 #include "TestScene.h"
+#include "Scene.h"
 
 std::shared_ptr<ResourceManager> GameFramework::m_pResourceManager = nullptr;
 
 GameFramework::GameFramework(BOOL bEnableDebugLayer, BOOL bEnableGBV)
-	: pD3DCore{ std::make_shared<D3DCore>(bEnableDebugLayer, bEnableGBV) }
+	: m_pD3DCore{ std::make_shared<D3DCore>(bEnableDebugLayer, bEnableGBV) }
 {
 	// Init managers
-	m_pResourceManager = std::make_shared<ResourceManager>(pD3DCore->GetDevice());
+	m_pResourceManager = std::make_shared<ResourceManager>(m_pD3DCore->GetDevice());
 
 
 	// Init Scene
-	pScene = std::make_shared<TestScene>();
-	pScene->BuilObjects();
+	m_pScene = std::make_shared<TestScene>();
+	m_pScene->BuilObjects();
 	m_pResourceManager->ExcuteCommandList();
 }
 
 void GameFramework::Update()
 {
+	m_pScene->Update();
 }
 
 void GameFramework::Render()
 {
-	pD3DCore->RenderBegin();
+	m_pD3DCore->RenderBegin();
 
 	// TODO : Render Logic Here
 
