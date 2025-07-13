@@ -31,6 +31,6 @@ void GameFramework::Render()
 
 	// TODO : Render Logic Here
 
-	pD3DCore->RenderEnd();
-	pD3DCore->Present();
+	m_pD3DCore->RenderEnd();
+	m_pD3DCore->Present();
 }

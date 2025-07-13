@@ -84,6 +84,9 @@
     <Filter Include="소스 파일\Headers">
       <UniqueIdentifier>{d677f3f0-b145-4f04-8a3f-460b2126aca5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Game\GameObject\Script">
+      <UniqueIdentifier>{cd77e6fa-c259-4dfb-9991-f155002d3c68}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -149,8 +152,6 @@
     <ClInclude Include="ConstantBufferPool.h">
       <Filter>소스 파일\Renderer\Shader Resources\ResourcePool</Filter>
     </ClInclude>
-    <ClInclude Include="DescriptorHeap.h" />
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="Component.h">
       <Filter>소스 파일\Game\GameObject\Components\Base</Filter>
     </ClInclude>
@@ -159,6 +160,15 @@
     </ClInclude>
     <ClInclude Include="Defines.h">
       <Filter>소스 파일\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Script.h">
+      <Filter>소스 파일\Game\GameObject\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="DescriptorHeap.h">
+      <Filter>소스 파일\Renderer\RenderPass</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>소스 파일\Game\Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -222,17 +232,20 @@
     <ClCompile Include="ConstantBufferPool.cpp">
       <Filter>소스 파일\Renderer\Shader Resources\ResourcePool</Filter>
     </ClCompile>
-    <ClCompile Include="DescriptorHeap.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Component.cpp">
       <Filter>소스 파일\Game\GameObject\Components\Base</Filter>
     </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>소스 파일\Game\GameObject\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Script.cpp">
+      <Filter>소스 파일\Game\GameObject\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>소스 파일\Game\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="DescriptorHeap.cpp">
+      <Filter>소스 파일\Renderer\RenderPass</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

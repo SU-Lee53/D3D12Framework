@@ -15,21 +15,22 @@ enum SHADER_TYPE
 
 class ShaderBase {
 public:
-
-
-protected:
-
+	UINT m_nVariables = 0;
 };
 
 template <SHADER_TYPE shaderTy>
 class Shader : public ShaderBase {
 public:
 	Shader() = default;
-	Shader(std::wstring_view wstrFileName, std::string_view strShaderName);
+	Shader(std::wstring_view wstrFileName, std::string_view strShaderName, UINT nVariables);
 	virtual ~Shader() {}
 
 	D3D12_SHADER_BYTECODE GetShaderBytecode() {
 		return { m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize() };
+	}
+
+	UINT GetShaderVariablesCount() const {
+		return m_nVariables;
 	}
 
 private:
@@ -50,11 +51,11 @@ private:
 
 private:
 	ComPtr<ID3DBlob> m_pShaderBlob = nullptr;
-
 };
 
 template<SHADER_TYPE shaderTy>
-inline Shader<shaderTy>::Shader(std::wstring_view wstrFileName, std::string_view strShaderName)
+inline Shader<shaderTy>::Shader(std::wstring_view wstrFileName, std::string_view strShaderName, UINT nVariables)
+	: m_nVariables{ nVariables }
 {
 	UINT nCompileFlags = 0;
 #ifdef _DEBUG

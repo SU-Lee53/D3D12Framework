@@ -18,12 +18,19 @@ public:
 	template<typename... Objs, 
 		typename = std::enable_if_t<(std::is_same_v<Objs, std::shared_ptr<GameObject>> && ...)>>
 	void AddObjects(Objs... pObjs) {
-		m_pGameObjects.push_back(std::forward<Objs>(pObjs), ...);
+		(m_pGameObjects.push_back(std::forward<Objs>(pObjs)), ...);
 	}
 
 public:
 	virtual void Update() = 0;
 	virtual void Render() = 0;
+
+public:
+	std::shared_ptr<GameObject> GetPlayer() const { return m_pPlayer; }
+	std::shared_ptr<Camera> GetCamera() const { return m_pMainCamera; }
+	std::vector<std::shared_ptr<GameObject>>& GetObjectsInScene() { return m_pGameObjects; }
+
+	virtual void UpdateShaderVariables(ConstantBuffer& CBuffer);
 
 protected:
 	virtual void ProcessInput() = 0;
@@ -32,7 +39,9 @@ protected:
 protected:
 	std::vector<std::shared_ptr<GameObject>> m_pGameObjects = {};
 	std::vector<std::shared_ptr<class Light>> m_pLights = {};
-	std::shared_ptr<Camera> pMainCamera = nullptr;
+	
+	std::shared_ptr<GameObject> m_pPlayer = nullptr;
+	std::shared_ptr<Camera> m_pMainCamera = nullptr;
 
 };
 

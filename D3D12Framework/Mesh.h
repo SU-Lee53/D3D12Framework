@@ -1,17 +1,10 @@
 #pragma once
+#include "Component.h"
 #include "ShaderResource.h"
 #include "InputLayout.h"
 
-class MeshBase {
-public:
-	MeshBase() {}
-	virtual ~MeshBase() {}
-
-	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nInstanceCount = 1) = 0;
-};
-
 template<typename T>
-class Mesh : public MeshBase {
+class Mesh : public Component {
 public:
 	Mesh(std::span<T> vertices, std::span<std::span<UINT>> SubMeshes,
 		D3D12_PRIMITIVE_TOPOLOGY d3dTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
@@ -19,6 +12,7 @@ public:
 	virtual ~Mesh() {}
 
 
+	virtual void Update() override {}
 	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nInstanceCount = 1);
 
 private:
@@ -34,6 +28,11 @@ protected:
 protected:
 	// Bounding Volume
 	BoundingOrientedBox m_xmOBB;
+};
+
+template <typename T>
+struct Component_Type<Mesh<T>> {
+	constexpr static COMPONENT_TYPE componentType = COMPONENT_TYPE_TRANSFORM;
 };
 
 template<typename T>

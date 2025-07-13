@@ -41,6 +41,11 @@ public:
 
 	void ExcuteCommandList();
 
+public:
+	ConstantBuffer& AllocConstantBuffer() {
+		return m_pConstantBufferPool->Allocate();
+	}
+
 private:
 	void CreateCommandList();
 	void CreateFence();

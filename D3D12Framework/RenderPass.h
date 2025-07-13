@@ -1,28 +1,27 @@
 #pragma once
 #include "Pipeline.h"
-
-struct SHADER_RESOURCE_BIND_STRUCT {
-	std::string strBindSemantics;
-	SHADER_RESOURCE_TYPE resourceType;
-
-};
-
-struct std::hash<SHADER_RESOURCE_BIND_STRUCT> {
-	size_t operator()(const SHADER_RESOURCE_BIND_STRUCT& s) {
-		return std::hash<std::string>{}(s.strBindSemantics);
-	}
-};
+#include "DescriptorHeap.h"
 
 class RenderPass {
 public:
 	RenderPass(ComPtr<ID3D12Device14> pd3dDevice) {}
 	virtual ~RenderPass() {}
 
-	virtual void Run(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::span<GameObject> pGameObject) = 0;
+	void BindShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::string_view svBindSemantic, const Descriptor& DescriptorToBind) {
+		m_pPipeline->BindShaderVariables(pd3dCommandList, svBindSemantic, DescriptorToBind);
+	}
+
+	void BindShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::string_view svBindSemantic, ComPtr<ID3D12Resource> pd3dResource) {
+		m_pPipeline->BindShaderVariables(pd3dCommandList, svBindSemantic, pd3dResource);
+	}
+
+
+	virtual void Run(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::shared_ptr<Scene> pScene) = 0;
 
 protected:
 	std::shared_ptr<Pipeline> m_pPipeline = nullptr;
 	std::vector<ComPtr<ID3D12Resource>> m_pRTVs;			// for MRT
+	std::shared_ptr<DescriptorHeap> m_DescriptorHeaps = nullptr;
 
 };
 
@@ -34,11 +33,6 @@ public:
 
 	virtual ~DiffusedPass() {}
 
-	virtual void Run(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList) {
-
-
-
-
-	}
+	virtual void Run(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::shared_ptr<Scene> pScene) override;
 
 };

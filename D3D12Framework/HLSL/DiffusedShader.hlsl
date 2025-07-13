@@ -18,7 +18,6 @@ cbuffer cbCameraData : register(b0)
 
 cbuffer cbWorldTransformData : register(b1)
 {
-    matrix gmtxModel;
     matrix gmtxWorld;
 }
 
@@ -26,7 +25,7 @@ VS_DIFFUSED_OUTPUT VSDiffused(VS_DIFFUSED_INPUT input)
 {
     VS_DIFFUSED_OUTPUT output;
     
-    output.pos = mul(mul(mul(float4(input.pos, 1), gmtxModel), gmtxWorld), gmtxViewProjection);
+    output.pos = mul(mul(float4(input.pos, 1), gmtxWorld), gmtxViewProjection);
     output.color = input.color;
     
     return output;

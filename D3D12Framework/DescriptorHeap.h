@@ -9,6 +9,7 @@ struct Descriptor {
 
 class DescriptorHeap {
 public:
+	DescriptorHeap() = default;
 	DescriptorHeap(ComPtr<ID3D12Device14> pd3dDevice, D3D12_DESCRIPTOR_HEAP_DESC d3dHeapDesc);
 	~DescriptorHeap();
 
@@ -18,7 +19,7 @@ public:
 			__debugbreak();
 		}
 
-		return {
+		return Descriptor{
 			CD3DX12_CPU_DESCRIPTOR_HANDLE(m_DescriptorHandleFromStart.cpuHandle, index, m_uiDescriptorSize),
 			CD3DX12_GPU_DESCRIPTOR_HANDLE(m_DescriptorHandleFromStart.gpuHandle, index, m_uiDescriptorSize),
 		};
@@ -28,8 +29,8 @@ public:
 		return (*this)[++m_uiAllocated];
 	}
 
-	void CopySimpleTo(ComPtr<ID3D12Device14> pd3dDevice, UINT nDescriptors, const DescriptorHeap& dest, D3D12_DESCRIPTOR_HEAP_TYPE d3dHeapType = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) {
-		pd3dDevice->CopyDescriptorsSimple(nDescriptors, m_DescriptorHandleFromStart.cpuHandle, dest.m_DescriptorHandleFromStart.cpuHandle, d3dHeapType);
+	void CopySimpleTo(ComPtr<ID3D12Device14> pd3dDevice, UINT nDescriptors, const D3D12_CPU_DESCRIPTOR_HANDLE& src, D3D12_DESCRIPTOR_HEAP_TYPE d3dHeapType = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) {
+		pd3dDevice->CopyDescriptorsSimple(nDescriptors, m_DescriptorHandleFromStart.cpuHandle, src, d3dHeapType);
 	}
 
 private:

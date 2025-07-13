@@ -9,6 +9,7 @@ public:
 	void BuilObjects() override;
 	void Update() override;
 	void Render() override;
+	virtual void UpdateShaderVariables(ConstantBuffer& CBuffer) override;
 
 protected:
 	void ProcessInput() override;

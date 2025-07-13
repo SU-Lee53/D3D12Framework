@@ -14,6 +14,8 @@
 #include <memory.h>
 #include <tchar.h>
 
+#undef min
+#undef max
 
 // STL Essentials
 #include <iostream>
@@ -21,10 +23,13 @@
 #include <string>
 #include <array>
 #include <vector>
+#include <unordered_map>
 #include <span>
 #include <algorithm>
 #include <utility>
 #include <type_traits>
+#include <ranges>
+#include <concepts>
 
 
 // Direct3D related headers
@@ -75,3 +80,4 @@ extern inline size_t AlignConstantBuffersize(size_t size);
 #include "WinCore.h"
 #include "D3DCore.h"
 #include "GameFramework.h"
+
