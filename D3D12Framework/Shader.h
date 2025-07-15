@@ -55,7 +55,7 @@ private:
 
 template<SHADER_TYPE shaderTy>
 inline Shader<shaderTy>::Shader(std::wstring_view wstrFileName, std::string_view strShaderName, UINT nVariables)
-	: m_nVariables{ nVariables }
+	: ShaderBase{ nVariables }
 {
 	UINT nCompileFlags = 0;
 #ifdef _DEBUG

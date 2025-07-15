@@ -1,6 +1,7 @@
 #pragma once
 #include "RootSignature.h"
 #include "Shader.h"
+#include "DescriptorHeap.h"
 
 struct DescruiptorHeap;
 
@@ -10,10 +11,15 @@ public:
 	Pipeline(ComPtr<ID3D12Device14> pd3dDevice) {}
 	virtual ~Pipeline() {}
 
-	void BindShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::string_view svBindSemantic, const Descriptor& DescriptorToBind);
-	void BindShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::string_view svBindSemantic, ComPtr<ID3D12Resource> pd3dResource);
+	template<typename T>
+	void BindShaderVariables(
+		ComPtr<ID3D12GraphicsCommandList> pd3dCommandList,
+		SHADER_RESOURCE_TYPE shaderResourceType,
+		ROOT_PARAMETER_TYPE rootParameterType,
+		std::string_view svBindSemantic, 
+		const T& DescriptorToBind) const;
 
-	int GetShaderVariablesCount() {
+	int GetShaderVariablesCount() const {
 		int sum;
 		for (const auto& pShader : m_pShaders) {
 			if (pShader) {
@@ -27,11 +33,27 @@ public:
 	virtual void Run() = 0;
 
 protected:
+	inline void Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex, const Descriptor& descriptor) const;
+	inline void Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex, const ConstantBuffer& CBuffer) const;
+	inline void Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex, const D3D12_GPU_VIRTUAL_ADDRESS& GPUAddress) const;
+
+protected:
 	ComPtr<ID3D12PipelineState> m_pPipelineState = nullptr;
 
 	std::shared_ptr<RootSignature> m_pRootSignature = nullptr;
 	std::array<std::shared_ptr<ShaderBase>, SHADER_TYPE_COUNT> m_pShaders = {};
 };
+
+template<typename T>
+inline void Pipeline::BindShaderVariables(
+	ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, 
+	SHADER_RESOURCE_TYPE shaderResourceType, 
+	ROOT_PARAMETER_TYPE rootParameterType, 
+	std::string_view svBindSemantic, const T& reource) const
+{
+	UINT nRootParameterIndex = m_pRootSignature->GetBindPosition(shaderResourceType, rootParameterType, svBindSemantic);
+	Bind(nRootParameterIndex, reource);
+}
 
 
 class DiffusedPipeline : public Pipeline {
@@ -42,9 +64,9 @@ public:
 		m_pShaders[SHADER_TYPE_PIXEL] = std::make_shared<PixelShader>(L"HLSL/DiffusedShader.hlsl", "PSDiffused", 0);
 
 		// 2. Init RootSignature
-		std::vector<SHADER_RESOURCE_BIND_STRUCT> binders(2);
-		binders[0] = { "TRANSFORM", SHADER_RESOURCE_TYPE_CONSTANT_BUFFER };
-		binders[1] = { "CAMERA", SHADER_RESOURCE_TYPE_CONSTANT_BUFFER };
+		std::vector<SHADER_RESOURCE_BIND_INFO> binders(2);
+		binders[0].InitAsRootDescriptor("TRANSFORM", SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, 0);
+		binders[1].InitAsRootDescriptor("CAMERA", SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, 1);
 
 		m_pRootSignature = std::make_shared<RootSignature>(pd3dDevice, binders);
 
@@ -87,4 +109,3 @@ public:
 	void Run() override;
 
 };
-

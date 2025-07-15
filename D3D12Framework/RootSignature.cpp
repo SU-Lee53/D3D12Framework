@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "RootSignature.h"
 
-RootSignature::RootSignature(ComPtr<ID3D12Device14> pd3dDevice, std::span<SHADER_RESOURCE_BIND_STRUCT> binders, D3D12_ROOT_SIGNATURE_FLAGS flags)
+RootSignature::RootSignature(ComPtr<ID3D12Device14> pd3dDevice, std::span<SHADER_RESOURCE_BIND_INFO> binders, D3D12_ROOT_SIGNATURE_FLAGS flags)
 	: m_RootSignatureFlags{ flags }
 {
-	std::ranges::sort(binders, {}, &SHADER_RESOURCE_BIND_STRUCT::eResourceType);
+	std::ranges::sort(binders, {}, &SHADER_RESOURCE_BIND_INFO::eParameterType);
+	std::ranges::stable_sort(binders, {}, &SHADER_RESOURCE_BIND_INFO::eResourceType);
+
 	std::vector<CD3DX12_ROOT_PARAMETER> rootParameters = CreateRootParameter(binders);
 
 	CD3DX12_STATIC_SAMPLER_DESC samplerDesc;
@@ -16,7 +18,7 @@ RootSignature::RootSignature(ComPtr<ID3D12Device14> pd3dDevice, std::span<SHADER
 	ComPtr<ID3DBlob> pd3dSignatureBlob = nullptr;
 	ComPtr<ID3DBlob> pd3dErrorBlob = nullptr;
 
-	HRESULT hr = ::D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
+	HRESULT hr = ::D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_2, &pd3dSignatureBlob, &pd3dErrorBlob);
 	if (FAILED(hr)) {
 		if (pd3dErrorBlob) {
 			OutputDebugStringA((char*)pd3dErrorBlob->GetBufferPointer());
@@ -28,47 +30,34 @@ RootSignature::RootSignature(ComPtr<ID3D12Device14> pd3dDevice, std::span<SHADER
 	if (FAILED(hr)) __debugbreak();
 }
 
-std::pair<SHADER_RESOURCE_TYPE, UINT> RootSignature::GetBindSlot(std::string_view svBindSemantics)
+UINT RootSignature::GetBindPosition(SHADER_RESOURCE_TYPE shaderResourceType, ROOT_PARAMETER_TYPE rootParameterType, std::string_view svBindSemantic) const
 {
-	std::string finder{ svBindSemantics };
-	for (int resourceType = 0; resourceType < m_ResourceBindInfos.size(); ++resourceType ) {
-		if (auto it = m_ResourceBindInfos[resourceType].find(finder); it != m_ResourceBindInfos[resourceType].end()) {
-			return { (SHADER_RESOURCE_TYPE)resourceType, it->second };
-		}
-	}
+	std::string strSemantic{ svBindSemantic };
 
-	return { SHADER_RESOURCE_TYPE_UNDEFINED, std::numeric_limits<UINT>::max() };
+	auto it = m_ResourceBindInfos[shaderResourceType][rootParameterType].find(strSemantic);
+	if (it != m_ResourceBindInfos[shaderResourceType][rootParameterType].end()) {
+		return it->second;
+	}
+	else {
+		__debugbreak();
+		return std::numeric_limits<UINT>::max();
+	}
 }
 
-std::pair<SHADER_RESOURCE_TYPE, UINT> RootSignature::GetRootParameterIndex(std::string_view svBindSemantics)
-{
-	UINT nSlot = 0;
-	std::string finder{ svBindSemantics };
-	for (int resourceType = 0; resourceType < m_ResourceBindInfos.size(); ++resourceType) {
-		if (m_ResourceBindInfos[resourceType].contains(finder)) {
-			return { (SHADER_RESOURCE_TYPE)resourceType, nSlot };
-		}
-
-		if (!m_ResourceBindInfos[resourceType].empty()) {
-			++nSlot;
-		}
-	}
-
-	return { SHADER_RESOURCE_TYPE_UNDEFINED, std::numeric_limits<UINT>::max() };
-}
-
-std::vector<CD3DX12_ROOT_PARAMETER> RootSignature::CreateRootParameter(std::span<SHADER_RESOURCE_BIND_STRUCT> binders)
+std::vector<CD3DX12_ROOT_PARAMETER> RootSignature::CreateRootParameter(std::span<SHADER_RESOURCE_BIND_INFO> binders)
 {
 	auto i = binders.begin();
-	UINT srvRegisterBase = 0;
+	UINT nRootParameterIndexBase = 0;
+
 	std::vector<CD3DX12_ROOT_PARAMETER> rootRarameters;
+	rootRarameters.reserve(binders.size());
 	while (true) {
-		i = std::ranges::adjacent_find(i, binders.end(), {}, &SHADER_RESOURCE_BIND_STRUCT::eResourceType);
+		i = std::ranges::adjacent_find(i, binders.end(), {}, &SHADER_RESOURCE_BIND_INFO::eResourceType);
 		if (i == binders.end()) {
 			break;
 		}
 
-		auto j = std::ranges::find_if_not(i + 1, binders.end(), [i](const SHADER_RESOURCE_BIND_STRUCT& binder) {return i->eResourceType == binder.eResourceType; });
+		auto j = std::ranges::find_if_not(i + 1, binders.end(), [i](const SHADER_RESOURCE_BIND_INFO& binder) {return i->eResourceType == binder.eResourceType; });
 
 		// 예시)
 		// [CB][CB][CB][CB][SB][SB][SB][TEX][TEX][TEX][TEX][TEX] <- 여기서 ConstantBuffer 를 찾는다면
@@ -82,48 +71,83 @@ std::vector<CD3DX12_ROOT_PARAMETER> RootSignature::CreateRootParameter(std::span
 		{
 		case SHADER_RESOURCE_TYPE_CONSTANT_BUFFER:
 		{
-			CD3DX12_DESCRIPTOR_RANGE descRange;
-			descRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, sameRange, 0);
+			for (auto binder = i; binder != j; ++binder) {
+				CD3DX12_ROOT_PARAMETER rootParameter;
+				switch (binder->eParameterType)
+				{
+				case ROOT_PARAMETER_TYPE_ROOT_DESCRIPTOR:
+					rootParameter.InitAsConstantBufferView(binder->RootDescriptorInfo.nRegisterSlot);
+					break;
 
-			CD3DX12_ROOT_PARAMETER rootParameter;
-			rootParameter.InitAsDescriptorTable(sameRange, &descRange, D3D12_SHADER_VISIBILITY_ALL);
-			rootRarameters.push_back(rootParameter);
+				case ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
+				{
+					CD3DX12_DESCRIPTOR_RANGE descRange;
+					descRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, binder->DescriptorTableInfo.nDescriptors, binder->DescriptorTableInfo.nRegisterSlot);
+					rootParameter.InitAsDescriptorTable(1, &descRange, D3D12_SHADER_VISIBILITY_ALL);
+					break;
+				}
 
-			size_t idx = 0;
-			for (const SHADER_RESOURCE_BIND_STRUCT& binder : std::ranges::subrange{ i,j }) {
-				m_ResourceBindInfos[SHADER_RESOURCE_TYPE_CONSTANT_BUFFER][binder.strBindSemantics] = idx;
-				++idx;
+				default:
+					__debugbreak();
+					break;
+				}
+				rootRarameters.push_back(rootParameter);
+
+				m_ResourceBindInfos[binder->eResourceType][binder->eParameterType][binder->strBindSemantic] = nRootParameterIndexBase;
+				++nRootParameterIndexBase;
 			}
 
 			break;
 		}
 		case SHADER_RESOURCE_TYPE_TEXTURE:
 		{
-			CD3DX12_DESCRIPTOR_RANGE descRange;
-			descRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, sameRange, 0);
+			for (auto binder = i; binder != j; ++binder) {
+				CD3DX12_ROOT_PARAMETER rootParameter;
+				switch (binder->eParameterType)
+				{
+				case ROOT_PARAMETER_TYPE_ROOT_DESCRIPTOR:
+					rootParameter.InitAsShaderResourceView(binder->RootDescriptorInfo.nRegisterSlot);
+					break;
 
-			CD3DX12_ROOT_PARAMETER rootParameter;
-			rootParameter.InitAsDescriptorTable(sameRange, &descRange, D3D12_SHADER_VISIBILITY_ALL);
-			rootRarameters.push_back(rootParameter);
+				case ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
+				{
+					CD3DX12_DESCRIPTOR_RANGE descRange;
+					descRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, binder->DescriptorTableInfo.nDescriptors, binder->DescriptorTableInfo.nRegisterSlot);
+					rootParameter.InitAsDescriptorTable(1, &descRange, D3D12_SHADER_VISIBILITY_ALL);
+					break;
+				}
 
-			for (const SHADER_RESOURCE_BIND_STRUCT& binder : std::ranges::subrange{ i,j }) {
-				m_ResourceBindInfos[SHADER_RESOURCE_TYPE_TEXTURE][binder.strBindSemantics] = srvRegisterBase;
-				++srvRegisterBase;
+				default:
+					__debugbreak();
+					break;
+				}
+				rootRarameters.push_back(rootParameter);
+
+				m_ResourceBindInfos[binder->eResourceType][binder->eParameterType][binder->strBindSemantic] = nRootParameterIndexBase;
+				++nRootParameterIndexBase;
 			}
 
 			break;
 		}
 		case SHADER_RESOURCE_TYPE_STRUCTURED_BUFFER:
 		{
-			for (int i = srvRegisterBase; i < srvRegisterBase + sameRange; ++i) {
+			for (auto binder = i; binder != j; ++binder) {
 				CD3DX12_ROOT_PARAMETER rootParameter;
-				rootParameter.InitAsShaderResourceView(i);
-				rootRarameters.push_back(rootParameter);
-			}
+				switch (binder->eParameterType)
+				{
+				case ROOT_PARAMETER_TYPE_ROOT_DESCRIPTOR:
+					rootParameter.InitAsShaderResourceView(binder->RootDescriptorInfo.nRegisterSlot);
+					break;
 
-			for (const SHADER_RESOURCE_BIND_STRUCT& binder : std::ranges::subrange{ i,j }) {
-				m_ResourceBindInfos[SHADER_RESOURCE_TYPE_TEXTURE][binder.strBindSemantics] = srvRegisterBase;
-				++srvRegisterBase;
+				// Structured Buffer 로 들어갈 만큼 큰 버퍼는 Descriptor Table 로 넣으면 컴퓨터 맛탱이 가므로 하지말것
+				default:
+					__debugbreak();
+					break;
+				}
+				rootRarameters.push_back(rootParameter);
+
+				m_ResourceBindInfos[binder->eResourceType][binder->eParameterType][binder->strBindSemantic] = nRootParameterIndexBase;
+				++nRootParameterIndexBase;
 			}
 
 			break;

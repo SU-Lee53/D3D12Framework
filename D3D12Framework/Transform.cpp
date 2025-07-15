@@ -31,7 +31,6 @@ void Transform::SetLocalMatrix(const XMFLOAT4X4& xmf4x4Local)
 // Translate
 // =========
 
-
 void Transform::SetPosition(float x, float y, float z)
 {
 	m_xmf4x4World._41 = x;

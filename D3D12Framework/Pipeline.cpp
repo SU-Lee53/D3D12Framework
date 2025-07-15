@@ -2,47 +2,21 @@
 #include "Pipeline.h"
 #include "DescriptorHeap.h"
 
-void Pipeline::BindShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::string_view svBindSemantic, const Descriptor& DescriptorToBind)
-{
-	auto [eResourceType, slot] = m_pRootSignature->GetRootParameterIndex(svBindSemantic);
-
-	if (eResourceType == SHADER_RESOURCE_TYPE_UNDEFINED) {
-		__debugbreak();
-	}
-
-	switch (eResourceType)
-	{
-	case SHADER_RESOURCE_TYPE_CONSTANT_BUFFER:
-	case SHADER_RESOURCE_TYPE_TEXTURE:
-		pd3dCommandList->SetGraphicsRootDescriptorTable(slot, DescriptorToBind.gpuHandle);
-		break;
-	default:
-		__debugbreak();
-		break;
-	}
-
-}
-
-void Pipeline::BindShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::string_view svBindSemantic, ComPtr<ID3D12Resource> pd3dResource)
-{
-	auto [eResourceType, slot] = m_pRootSignature->GetBindSlot(svBindSemantic);
-
-	if (eResourceType == SHADER_RESOURCE_TYPE_UNDEFINED) {
-		__debugbreak();
-	}
-
-	switch (eResourceType)
-	{
-	case SHADER_RESOURCE_TYPE_STRUCTURED_BUFFER:
-		pd3dCommandList->SetGraphicsRootShaderResourceView(slot, pd3dResource->GetGPUVirtualAddress());
-		break;
-		
-	default:
-		__debugbreak();
-		break;
-	}
-}
-
 void DiffusedPipeline::Run()
 {
+}
+
+void Pipeline::Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex, const Descriptor& descriptor) const
+{
+	pd3dCommandList->SetGraphicsRootDescriptorTable(nRootParameterIndex, descriptor.gpuHandle);
+}
+
+void Pipeline::Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex, const ConstantBuffer& CBuffer) const
+{
+	pd3dCommandList->SetGraphicsRootConstantBufferView(nRootParameterIndex, CBuffer.pGPUAddress);
+}
+
+void Pipeline::Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex, const D3D12_GPU_VIRTUAL_ADDRESS& GPUAddress) const
+{
+	pd3dCommandList->SetGraphicsRootConstantBufferView(nRootParameterIndex, GPUAddress);
 }

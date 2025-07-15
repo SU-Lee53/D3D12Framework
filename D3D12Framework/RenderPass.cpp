@@ -9,7 +9,6 @@ void DiffusedPass::Run(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::s
 	auto pCamera = pScene->GetCamera();
 	pCamera->UpdateShaderVariables(cbCamera);
 
-
 	for (auto& obj : pScene->GetObjectsInScene()) {
 		auto pTransform = obj->GetComponent<Transform>();
 		ConstantBuffer& cbTransform = RESOURCE->AllocConstantBuffer();
