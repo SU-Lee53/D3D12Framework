@@ -26,10 +26,10 @@
 #include <unordered_map>
 #include <span>
 #include <algorithm>
-#include <utility>
 #include <type_traits>
 #include <ranges>
 #include <concepts>
+#include <utility>
 
 
 // Direct3D related headers
@@ -69,6 +69,7 @@ extern inline size_t AlignConstantBuffersize(size_t size);
 
 // Additional Helper Headers
 #include "Defines.h"
+#include "Concepts.h"
 #include "Utility.h"
 #include "ShaderResource.h"
 #include "InputLayout.h"
@@ -81,3 +82,4 @@ extern inline size_t AlignConstantBuffersize(size_t size);
 #include "D3DCore.h"
 #include "GameFramework.h"
 
+#include "ConstantBuffer.h"

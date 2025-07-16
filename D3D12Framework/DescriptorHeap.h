@@ -4,8 +4,13 @@
 struct Descriptor {
 	CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle;
 	CD3DX12_GPU_DESCRIPTOR_HANDLE gpuHandle;
-};
 
+	void Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex, UINT offset = 0) {
+		CD3DX12_GPU_DESCRIPTOR_HANDLE bindGPUHandle;
+		pd3dCommandList->SetGraphicsRootDescriptorTable(nRootParameterIndex, CD3DX12_GPU_DESCRIPTOR_HANDLE(gpuHandle, offset, D3DCore::gnCBVSRVDescriptorIncrementSize));
+	}
+
+};
 
 class DescriptorHeap {
 public:
@@ -13,7 +18,7 @@ public:
 	DescriptorHeap(ComPtr<ID3D12Device14> pd3dDevice, D3D12_DESCRIPTOR_HEAP_DESC d3dHeapDesc);
 	~DescriptorHeap();
 
-	Descriptor& operator[](UINT index)
+	Descriptor operator[](UINT index)
 	{
 		if (index >= m_uiCurrentDescriptorCount) {
 			__debugbreak();
@@ -25,7 +30,7 @@ public:
 		};
 	}
 
-	Descriptor& Alloc() {
+	Descriptor Alloc() {
 		return (*this)[++m_uiAllocated];
 	}
 

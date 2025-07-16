@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="Concepts.h" />
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="ConstantBufferPool.h" />
     <ClInclude Include="D3DCore.h" />

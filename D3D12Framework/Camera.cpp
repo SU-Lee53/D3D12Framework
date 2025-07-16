@@ -37,6 +37,13 @@ void Camera::SetViewportsAndScissorRects(ID3D12GraphicsCommandList* pd3dCommandL
 {
 }
 
+XMFLOAT4X4 Camera::GetViewProjectMatrix() const
+{
+	XMFLOAT4X4 ret;
+	XMStoreFloat4x4(&ret, XMMatrixMultiply(XMLoadFloat4x4(&m_xmf4x4View), XMLoadFloat4x4(&m_xmf4x4Projection)));
+	return ret;
+}
+
 XMFLOAT3 Camera::GetPosition() const
 {
 	return XMFLOAT3();

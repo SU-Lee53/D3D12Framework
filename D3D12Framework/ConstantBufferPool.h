@@ -81,7 +81,7 @@ inline ConstantBufferPool<nMaxCBVCount>::ConstantBufferPool(ComPtr<ID3D12Device1
 
 	for (UINT i = 0; i < nMaxCBVCount; ++i) {
 		m_CBuffers[i].CBVHandle = CBVHandle;
-		m_CBuffers[i].pGPUAddress = cbvDesc.BufferLocation;
+		m_CBuffers[i].GPUAddress = cbvDesc.BufferLocation;
 		m_CBuffers[i].pMappedPtr = pMappdedPtr;
 
 		CBVHandle.Offset(1, DescriptorSize);

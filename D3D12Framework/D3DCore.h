@@ -68,5 +68,6 @@ private:
 	HANDLE				m_hFenceEvent = nullptr;
 	std::array<UINT64, m_nSwapChainBuffers> m_nFenceValues = {};
 
+public:
+	static UINT gnCBVSRVDescriptorIncrementSize;
 };
-

@@ -27,10 +27,9 @@ public:
 	XMFLOAT3 GetWorldRight() const;
 	XMFLOAT3 GetWorldUp() const;
 	XMFLOAT3 GetWorldLook() const;
-
-
-public:
-	void UpdateShaderVariables(ConstantBuffer& CBuffer);
+	
+	XMFLOAT4X4 GetLocalMatrix() const;
+	XMFLOAT4X4 GetWorldMatrix() const;
 
 private:
 	XMFLOAT4X4 m_xmf4x4Local = {};	// relative

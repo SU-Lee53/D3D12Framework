@@ -81,9 +81,6 @@
     <Filter Include="소스 파일\Game\GameObject\Components\Base">
       <UniqueIdentifier>{9fb5d069-f649-4e2a-a005-695c286dc845}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Headers">
-      <UniqueIdentifier>{d677f3f0-b145-4f04-8a3f-460b2126aca5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Game\GameObject\Script">
       <UniqueIdentifier>{cd77e6fa-c259-4dfb-9991-f155002d3c68}</UniqueIdentifier>
     </Filter>
@@ -158,9 +155,6 @@
     <ClInclude Include="Transform.h">
       <Filter>소스 파일\Game\GameObject\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Defines.h">
-      <Filter>소스 파일\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Script.h">
       <Filter>소스 파일\Game\GameObject\Script</Filter>
     </ClInclude>
@@ -169,6 +163,12 @@
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>소스 파일\Game\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Defines.h">
+      <Filter>소스 파일\Utility Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Concepts.h">
+      <Filter>소스 파일\Utility Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

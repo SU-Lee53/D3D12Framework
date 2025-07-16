@@ -11,13 +11,13 @@ public:
 	Pipeline(ComPtr<ID3D12Device14> pd3dDevice) {}
 	virtual ~Pipeline() {}
 
-	template<typename T>
+	template<Bindable T>
 	void BindShaderVariables(
 		ComPtr<ID3D12GraphicsCommandList> pd3dCommandList,
 		SHADER_RESOURCE_TYPE shaderResourceType,
 		ROOT_PARAMETER_TYPE rootParameterType,
 		std::string_view svBindSemantic, 
-		const T& DescriptorToBind) const;
+		T& resource, UINT offsetInDescriptor = 0) const;
 
 	int GetShaderVariablesCount() const {
 		int sum;
@@ -30,29 +30,36 @@ public:
 	}
 
 public:
+	ID3D12PipelineState* Get() const { return m_pPipelineState.Get(); }
+	ID3D12RootSignature* GetRootSignature() const { return m_pRootSignature->Get(); }
+	
 	virtual void Run() = 0;
-
-protected:
-	inline void Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex, const Descriptor& descriptor) const;
-	inline void Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex, const ConstantBuffer& CBuffer) const;
-	inline void Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex, const D3D12_GPU_VIRTUAL_ADDRESS& GPUAddress) const;
 
 protected:
 	ComPtr<ID3D12PipelineState> m_pPipelineState = nullptr;
 
 	std::shared_ptr<RootSignature> m_pRootSignature = nullptr;
 	std::array<std::shared_ptr<ShaderBase>, SHADER_TYPE_COUNT> m_pShaders = {};
+	std::shared_ptr<DescriptorHeap> m_DescriptorHeaps = nullptr;
 };
 
-template<typename T>
+template<Bindable T>
 inline void Pipeline::BindShaderVariables(
 	ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, 
 	SHADER_RESOURCE_TYPE shaderResourceType, 
 	ROOT_PARAMETER_TYPE rootParameterType, 
-	std::string_view svBindSemantic, const T& reource) const
+	std::string_view svBindSemantic, 
+	T& resource, UINT offsetInDescriptor) const
 {
 	UINT nRootParameterIndex = m_pRootSignature->GetBindPosition(shaderResourceType, rootParameterType, svBindSemantic);
-	Bind(nRootParameterIndex, reource);
+
+	if constexpr (std::same_as<T, ConstantBuffer>) {
+		resource.Bind(pd3dCommandList, nRootParameterIndex);
+	}
+	else {
+		resource.Bind(pd3dCommandList, nRootParameterIndex, offsetInDescriptor);
+	}
+
 }
 
 
@@ -73,11 +80,10 @@ public:
 		// 3. Init Descriptor Heap (for SHADER_VISIBLE)
 		
 		D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
-		heapDesc.NumDescriptors = GetShaderVariablesCount();
+		heapDesc.NumDescriptors = 0;
 		heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		heapDesc.NodeMask = 0;
-
 
 		// 4. Init Pipeline
 

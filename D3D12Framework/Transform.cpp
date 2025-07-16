@@ -9,15 +9,6 @@ Transform::Transform(std::shared_ptr<GameObject> pOwner)
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
 }
 
-void Transform::UpdateShaderVariables(ConstantBuffer& CBuffer)
-{
-	XMFLOAT4X4 xmf4x4Final;
-	XMStoreFloat4x4(&xmf4x4Final, XMMatrixTranspose(XMMatrixMultiply(XMLoadFloat4x4(&m_xmf4x4Local), XMLoadFloat4x4(&m_xmf4x4World))));
-	
-	::memcpy(CBuffer.pMappedPtr, &xmf4x4Final, sizeof(xmf4x4Final));
-}
-
-
 void Transform::Update()
 {
 }
@@ -114,4 +105,14 @@ XMFLOAT3 Transform::GetWorldLook() const
 	XMFLOAT3 xmf3Look;
 	XMStoreFloat3(&xmf3Look, xmvLook);
 	return xmf3Look;
+}
+
+XMFLOAT4X4 Transform::GetLocalMatrix() const
+{
+	return m_xmf4x4Local;
+}
+
+XMFLOAT4X4 Transform::GetWorldMatrix() const
+{
+	return m_xmf4x4World;
 }

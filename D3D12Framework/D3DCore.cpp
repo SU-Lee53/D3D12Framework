@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "D3DCore.h"
 
+UINT D3DCore::gnCBVSRVDescriptorIncrementSize = 0;
+
 D3DCore::D3DCore(BOOL bEnableDebugLayer, BOOL bEnableGBV)
 {
 	CreateD3DDevice(bEnableDebugLayer);
@@ -8,6 +10,8 @@ D3DCore::D3DCore(BOOL bEnableDebugLayer, BOOL bEnableGBV)
 	CreateRTVAndDSVDescriptorHeaps();
 	CreateSwapChain();
 	CreateDepthStencilView();
+
+	gnCBVSRVDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 void D3DCore::CreateD3DDevice(bool bEnableDebugLayer)

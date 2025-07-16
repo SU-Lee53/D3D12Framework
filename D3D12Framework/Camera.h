@@ -14,6 +14,14 @@ public:
 	void SetPosition(const XMFLOAT3& xmf3Position);
 
 public:
+	XMFLOAT4X4 GetViewProjectMatrix() const;
+
+	XMFLOAT3 GetPosition() const;
+	XMFLOAT3 GetRight() const;
+	XMFLOAT3 GetUp() const;
+	XMFLOAT3 GetLook() const;
+
+public:
 	void Rotate(float fPitch, float fYaw, float fRoll);
 	void Rotate(const XMFLOAT3& pxmf3Axis, float fAngle);
 
@@ -28,15 +36,6 @@ public:
 
 	virtual void SetViewportsAndScissorRects(ID3D12GraphicsCommandList* pd3dCommandList);
 
-public:
-	XMFLOAT3 GetPosition() const;
-	XMFLOAT3 GetRight() const;
-	XMFLOAT3 GetUp() const;
-	XMFLOAT3 GetLook() const;
-
-public:
-	void UpdateShaderVariables(ConstantBuffer& CBuffer);
-
 private:
 	XMFLOAT4X4 m_xmf4x4View;
 	XMFLOAT4X4 m_xmf4x4Projection;
@@ -45,6 +44,10 @@ private:
     float m_fAspectRatio = 0.f;
     float m_fNear = 0.f;
     float m_fFar = 0.f;
+
+    XMFLOAT3 m_xmf3Eye	= {};
+    XMFLOAT3 m_xmf3At	= {};
+    XMFLOAT3 m_xmf3Up	= {};
 
 	D3D12_VIEWPORT	m_d3dViewport = {};
 	D3D12_RECT		m_d3dScissorRect = {};
