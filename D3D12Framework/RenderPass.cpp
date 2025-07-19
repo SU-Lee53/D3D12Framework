@@ -25,7 +25,7 @@ void DiffusedPass::Run(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::s
 		XMStoreFloat4x4(&xmf4x4CameraData, XMMatrixTranspose(XMMatrixMultiply(XMLoadFloat4x4(&pTransform->GetLocalMatrix()), XMLoadFloat4x4(&pTransform->GetWorldMatrix()))));
 		m_pPipeline->BindShaderVariables<ConstantBuffer>(pd3dCommandList, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, ROOT_PARAMETER_TYPE_ROOT_DESCRIPTOR, "TRANSFORM", cbTransform);
 
-		auto pMesh = obj->GetComponent<Mesh<DiffusedVertex>>();
+		auto pMesh = obj->GetComponent<Mesh>();
 		pMesh->Render(pd3dCommandList);
 	}
 

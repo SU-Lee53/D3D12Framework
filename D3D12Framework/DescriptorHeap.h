@@ -1,5 +1,5 @@
 #pragma once
-
+#include "D3DCore.h"
 
 struct Descriptor {
 	CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle;
@@ -7,7 +7,7 @@ struct Descriptor {
 
 	void Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex, UINT offset = 0) {
 		CD3DX12_GPU_DESCRIPTOR_HANDLE bindGPUHandle;
-		pd3dCommandList->SetGraphicsRootDescriptorTable(nRootParameterIndex, CD3DX12_GPU_DESCRIPTOR_HANDLE(gpuHandle, offset, D3DCore::gnCBVSRVDescriptorIncrementSize));
+		pd3dCommandList->SetGraphicsRootDescriptorTable(nRootParameterIndex, CD3DX12_GPU_DESCRIPTOR_HANDLE(gpuHandle, offset, D3DCore::g_nCBVSRVDescriptorIncrementSize));
 	}
 
 };

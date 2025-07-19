@@ -3,6 +3,8 @@
 
 Camera::Camera()
 {
+	XMStoreFloat4x4(&m_xmf4x4View, XMMatrixIdentity());
+	XMStoreFloat4x4(&m_xmf4x4Projection, XMMatrixIdentity());
 }
 
 Camera::~Camera()

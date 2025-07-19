@@ -6,6 +6,7 @@ public:
 
 public:
 	void RenderBegin();
+	void Render();
 	void RenderEnd();
 	void Present();
 
@@ -27,6 +28,7 @@ private:
 
 public:
 	ComPtr<ID3D12Device14> GetDevice() const;
+	ComPtr<ID3D12GraphicsCommandList> GetCommandList() const;
 
 
 private:
@@ -69,5 +71,5 @@ private:
 	std::array<UINT64, m_nSwapChainBuffers> m_nFenceValues = {};
 
 public:
-	static UINT gnCBVSRVDescriptorIncrementSize;
+	static UINT g_nCBVSRVDescriptorIncrementSize;
 };

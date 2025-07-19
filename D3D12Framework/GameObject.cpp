@@ -14,9 +14,9 @@ GameObject::~GameObject()
 void GameObject::Initialize()
 {
 	AddComponent<Transform>();
-	//	for (auto& script : m_pScripts) {
-	//		script->Initialize();
-	//	}
+	for (auto& script : m_pScripts) {
+		script->Initialize();
+	}
 
 	if (m_pParent) {
 		m_pParent->Initialize();

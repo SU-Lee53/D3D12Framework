@@ -15,9 +15,11 @@ private:
 
 public:
 	// Managers
-	static std::shared_ptr<ResourceManager> m_pResourceManager;
+	static std::shared_ptr<ResourceManager> g_pResourceManager;
+	static std::shared_ptr<RenderManager> g_pRenderManager;
 
 };
 
-#define RESOURCE		GameFramework::m_pResourceManager
+#define RESOURCE		GameFramework::g_pResourceManager
+#define RENDER			GameFramework::g_pRenderManager
 

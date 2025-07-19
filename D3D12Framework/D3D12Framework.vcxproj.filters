@@ -84,6 +84,9 @@
     <Filter Include="소스 파일\Game\GameObject\Script">
       <UniqueIdentifier>{cd77e6fa-c259-4dfb-9991-f155002d3c68}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Game\Obj Scripts">
+      <UniqueIdentifier>{eb8295a1-5c1d-4ebb-bb81-da44e23d832f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -170,6 +173,7 @@
     <ClInclude Include="Concepts.h">
       <Filter>소스 파일\Utility Headers</Filter>
     </ClInclude>
+    <ClInclude Include="CubeObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameFramework.cpp">
@@ -246,6 +250,9 @@
     </ClCompile>
     <ClCompile Include="DescriptorHeap.cpp">
       <Filter>소스 파일\Renderer\RenderPass</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeObject.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -3,7 +3,6 @@
 #include "Shader.h"
 #include "DescriptorHeap.h"
 
-struct DescruiptorHeap;
 
 class Pipeline
 {
@@ -91,6 +90,8 @@ public:
 		::ZeroMemory(&pipelineDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 		{
 			pipelineDesc.pRootSignature = m_pRootSignature->Get();
+			pipelineDesc.VS = m_pShaders[SHADER_TYPE_VERTEX]->GetShaderBytecode();
+			pipelineDesc.PS = m_pShaders[SHADER_TYPE_PIXEL]->GetShaderBytecode();
 			pipelineDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 			pipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 			pipelineDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
@@ -107,6 +108,7 @@ public:
 
 		if (FAILED(hr)) {
 			::SHOW_ERROR("Create Pipeline Failed");
+			__debugbreak();
 		}
 	}
 

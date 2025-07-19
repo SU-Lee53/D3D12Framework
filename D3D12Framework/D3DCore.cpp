@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "D3DCore.h"
 
-UINT D3DCore::gnCBVSRVDescriptorIncrementSize = 0;
+UINT D3DCore::g_nCBVSRVDescriptorIncrementSize = 0;
 
 D3DCore::D3DCore(BOOL bEnableDebugLayer, BOOL bEnableGBV)
 {
@@ -11,7 +11,7 @@ D3DCore::D3DCore(BOOL bEnableDebugLayer, BOOL bEnableGBV)
 	CreateSwapChain();
 	CreateDepthStencilView();
 
-	gnCBVSRVDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	g_nCBVSRVDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 void D3DCore::CreateD3DDevice(bool bEnableDebugLayer)
@@ -332,6 +332,11 @@ ComPtr<ID3D12Device14> D3DCore::GetDevice() const
 	return m_pd3dDevice;
 }
 
+ComPtr<ID3D12GraphicsCommandList> D3DCore::GetCommandList() const
+{
+	return m_pd3dCommandList;
+}
+
 void D3DCore::RenderBegin()
 {
 	HRESULT hr;
@@ -365,6 +370,10 @@ void D3DCore::RenderBegin()
 	m_pd3dCommandList->ClearRenderTargetView(d3dRTVCPUDescriptorHandle, pfClearColor, 0, NULL);
 
 	m_pd3dCommandList->ClearDepthStencilView(d3dDSVDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, NULL);
+}
+
+void D3DCore::Render()
+{
 }
 
 void D3DCore::RenderEnd()

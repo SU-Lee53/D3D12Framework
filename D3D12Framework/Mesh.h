@@ -3,14 +3,16 @@
 #include "ShaderResource.h"
 #include "InputLayout.h"
 
-template<typename T>
 class Mesh : public Component {
 public:
-	Mesh(std::span<T> vertices, std::span<std::span<UINT>> SubMeshes,
+	Mesh() = default;
+
+	template<typename T, typename U>
+	Mesh(std::shared_ptr<GameObject> pOwner, std::vector<T> vertices, std::vector<U> SubMeshes,
 		D3D12_PRIMITIVE_TOPOLOGY d3dTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 		UINT nSlot = 0, UINT nOffset = 0);
-	virtual ~Mesh() {}
 
+	virtual ~Mesh() {}
 
 	virtual void Update() override {}
 	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nInstanceCount = 1);
@@ -19,26 +21,33 @@ private:
 	VertexBuffer				m_VertexBuffer;
 	std::vector<IndexBuffer>	m_IndexBuffers;	// vector for submeshes
 
-protected:
+private:
 	D3D12_PRIMITIVE_TOPOLOGY		m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	UINT							m_nSlot = 0;
 	UINT							m_nVertices = 0;
 	UINT							m_nOffset = 0;
 
-protected:
+private:
 	// Bounding Volume
 	BoundingOrientedBox m_xmOBB;
 };
 
-template <typename T>
-struct Component_Type<Mesh<T>> {
+template <>
+struct Component_Type<Mesh> {
 	constexpr static COMPONENT_TYPE componentType = COMPONENT_TYPE_TRANSFORM;
 };
 
-template<typename T>
-inline Mesh<T>::Mesh(std::span<T> vertices, std::span<std::span<UINT>> SubMeshes, 
+template<typename T, typename U>
+inline Mesh::Mesh(std::shared_ptr<GameObject> pOwner, std::vector<T> vertices, std::vector<U> SubMeshes,
 	D3D12_PRIMITIVE_TOPOLOGY d3dTopology, UINT nSlot, UINT nOffset)
+	: Component{pOwner}
 {
+	static_assert(
+		std::is_same<U, std::vector<UINT>>::value ||
+		std::is_same<U, UINT>::value,
+		"SubMeshes types are valid when vector<UINT> or UINT."
+	);
+
 	m_nSlot = 0;
 	m_nVertices = vertices.size();
 	m_nOffset = 0;
@@ -46,26 +55,13 @@ inline Mesh<T>::Mesh(std::span<T> vertices, std::span<std::span<UINT>> SubMeshes
 	m_VertexBuffer = RESOURCE->CreateVertexBuffer(vertices);
 	
 	m_IndexBuffers.reserve(SubMeshes.size());
-	for (const auto& indices : SubMeshes) {
-		m_IndexBuffers.push_back(RESOURCE->CreateIndexBuffer(indices));
-	}
-
-}
-
-template<typename T>
-inline void Mesh<T>::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nInstanceCount)
-{
-	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	pd3dCommandList->IASetVertexBuffers(0, 1, &m_VertexBuffer.VertexBufferView);
-	
-	if (!m_IndexBuffers.empty()) {
-		for (const auto& IndexBuffer : m_IndexBuffers) {
-			pd3dCommandList->IASetIndexBuffer(&(IndexBuffer.IndexBufferView));
-			pd3dCommandList->DrawIndexedInstanced(IndexBuffer.nIndices, nInstanceCount, 0, 0, 0);
+	if constexpr (std::is_same_v <U, std::vector<UINT>>) {
+		for (const auto& indices : SubMeshes) {
+			m_IndexBuffers.push_back(RESOURCE->CreateIndexBuffer(indices));
 		}
 	}
 	else {
-		pd3dCommandList->DrawInstanced(m_nVertices, nInstanceCount, m_nOffset, 0);
+		m_IndexBuffers.push_back(RESOURCE->CreateIndexBuffer(SubMeshes));
 	}
 
 }

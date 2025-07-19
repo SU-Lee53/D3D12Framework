@@ -18,7 +18,7 @@ RootSignature::RootSignature(ComPtr<ID3D12Device14> pd3dDevice, std::span<SHADER
 	ComPtr<ID3DBlob> pd3dSignatureBlob = nullptr;
 	ComPtr<ID3DBlob> pd3dErrorBlob = nullptr;
 
-	HRESULT hr = ::D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_2, &pd3dSignatureBlob, &pd3dErrorBlob);
+	HRESULT hr = ::D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
 	if (FAILED(hr)) {
 		if (pd3dErrorBlob) {
 			OutputDebugStringA((char*)pd3dErrorBlob->GetBufferPointer());

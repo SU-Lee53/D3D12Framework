@@ -69,7 +69,7 @@ inline ConstantBufferPool<nMaxCBVCount>::ConstantBufferPool(ComPtr<ID3D12Device1
 	}
 
 	CD3DX12_RANGE writeRange(0, 0);
-	m_pResource->Map(0, &writeRange, reinterpret_cast<void**>(m_pMappedPtr));
+	m_pResource->Map(0, &writeRange, reinterpret_cast<void**>(&m_pMappedPtr));
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
 	cbvDesc.BufferLocation = m_pResource->GetGPUVirtualAddress();

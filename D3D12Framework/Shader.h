@@ -15,6 +15,19 @@ enum SHADER_TYPE
 
 class ShaderBase {
 public:
+	D3D12_SHADER_BYTECODE GetShaderBytecode() {
+		return { m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize() };
+	}
+
+	UINT GetShaderVariablesCount() const {
+		return m_nVariables;
+	}
+
+
+protected:
+	ComPtr<ID3DBlob> m_pShaderBlob = nullptr;
+
+public:
 	UINT m_nVariables = 0;
 };
 
@@ -24,14 +37,6 @@ public:
 	Shader() = default;
 	Shader(std::wstring_view wstrFileName, std::string_view strShaderName, UINT nVariables);
 	virtual ~Shader() {}
-
-	D3D12_SHADER_BYTECODE GetShaderBytecode() {
-		return { m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize() };
-	}
-
-	UINT GetShaderVariablesCount() const {
-		return m_nVariables;
-	}
 
 private:
 	constexpr std::string_view GetShaderProfile() {
@@ -48,26 +53,21 @@ private:
 		else if constexpr (shaderTy == SHADER_TYPE_COMPUTE)
 			return "cs_5_1";
 	}
-
-private:
-	ComPtr<ID3DBlob> m_pShaderBlob = nullptr;
 };
 
 template<SHADER_TYPE shaderTy>
 inline Shader<shaderTy>::Shader(std::wstring_view wstrFileName, std::string_view strShaderName, UINT nVariables)
-	: ShaderBase{ nVariables }
 {
 	UINT nCompileFlags = 0;
 #ifdef _DEBUG
 	nCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-	ComPtr<ID3DBlob> pShaderBlob = nullptr;
 	ComPtr<ID3DBlob> pErrorBlob = nullptr;
 
 	std::string shaderProfile { GetShaderProfile() };
 
-	HRESULT hr = ::D3DCompileFromFile(wstrFileName.data(), NULL, NULL, strShaderName.data(), shaderProfile.data(), nCompileFlags, 0, pShaderBlob.GetAddressOf(), pErrorBlob.GetAddressOf());
+	HRESULT hr = ::D3DCompileFromFile(wstrFileName.data(), NULL, NULL, strShaderName.data(), shaderProfile.data(), nCompileFlags, 0, m_pShaderBlob.GetAddressOf(), pErrorBlob.GetAddressOf());
 
 	if (FAILED(hr))
 	{

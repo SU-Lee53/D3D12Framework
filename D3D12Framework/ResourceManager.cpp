@@ -58,7 +58,7 @@ void ResourceManager::CreateFence()
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 }
 
-IndexBuffer ResourceManager::CreateIndexBuffer(std::span<UINT> Indices)
+IndexBuffer ResourceManager::CreateIndexBuffer(std::vector<UINT> Indices)
 {
 	HRESULT hr;
 

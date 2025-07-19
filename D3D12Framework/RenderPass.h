@@ -1,5 +1,6 @@
 #pragma once
 #include "Pipeline.h"
+#include "Scene.h"
 
 class RenderPass {
 public:

@@ -30,8 +30,6 @@ public:
 	std::shared_ptr<Camera> GetCamera() const { return m_pMainCamera; }
 	std::vector<std::shared_ptr<GameObject>>& GetObjectsInScene() { return m_pGameObjects; }
 
-	virtual void UpdateShaderVariables(ConstantBuffer& CBuffer);
-
 protected:
 	virtual void ProcessInput() = 0;
 	virtual void UpdateObjects() = 0;

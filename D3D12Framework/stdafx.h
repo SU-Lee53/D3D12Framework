@@ -76,6 +76,7 @@ extern inline size_t AlignConstantBuffersize(size_t size);
 
 // Managers
 #include "ResourceManager.h"
+#include "RenderManager.h"
 
 // Game Headers
 #include "WinCore.h"
@@ -83,3 +84,4 @@ extern inline size_t AlignConstantBuffersize(size_t size);
 #include "GameFramework.h"
 
 #include "ConstantBuffer.h"
+#include "DescriptorHeap.h"

@@ -12,7 +12,7 @@ public:
 		return m_pOwner.lock();
 	}
 
-private:
+protected:
 	std::weak_ptr<GameObject> m_pOwner;
 
 };

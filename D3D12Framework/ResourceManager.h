@@ -36,8 +36,8 @@ public:
 
 public:
 	template<typename T>
-	VertexBuffer CreateVertexBuffer(std::span<T> vertices);
-	IndexBuffer CreateIndexBuffer(std::span<UINT> Indices);
+	VertexBuffer CreateVertexBuffer(std::vector<T> vertices);
+	IndexBuffer CreateIndexBuffer(std::vector<UINT> Indices);
 
 	void ExcuteCommandList();
 
@@ -67,11 +67,11 @@ private:
 };
 
 template<typename T>
-inline VertexBuffer ResourceManager::CreateVertexBuffer(std::span<T> vertices)
+inline VertexBuffer ResourceManager::CreateVertexBuffer(std::vector<T> vertices)
 {
 	HRESULT hr;
 
-	ShaderResource Buffer = nullptr;
+	ShaderResource Buffer{};
 	ComPtr<ID3D12Resource> pUploadBuffer = nullptr;
 	UINT nVertices = vertices.size();
 	UINT VertexBufferSize = sizeof(T) * nVertices;
@@ -91,12 +91,12 @@ inline VertexBuffer ResourceManager::CreateVertexBuffer(std::span<T> vertices)
 
 	if (!vertices.empty()) {
 		hr = m_pd3dDevice->CreateCommittedResource(
-			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
-			CD3DX12_RESOURCE_DESC::Buffer(VertexBufferSize),
+			&CD3DX12_RESOURCE_DESC::Buffer(VertexBufferSize),
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(pUploadBuffer.GetAddressOf());
+			IID_PPV_ARGS(pUploadBuffer.GetAddressOf())
 		);
 
 

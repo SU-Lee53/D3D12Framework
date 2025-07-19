@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "RenderManager.h"
 
-RenderManager::RenderManager()
+RenderManager::RenderManager(ComPtr<ID3D12Device14> pd3dDevice)
 {
+	std::shared_ptr<DiffusedPass> pDiffusedPass = std::make_shared<DiffusedPass>(pd3dDevice);
+	m_pRenderPasses.push_back(pDiffusedPass);
 }
 
 RenderManager::~RenderManager()

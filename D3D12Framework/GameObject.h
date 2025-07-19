@@ -23,6 +23,9 @@ public:
 	template<ComponentType T>
 	std::shared_ptr<T> GetComponent();
 
+	template<ScriptType T>
+	void AddScript();
+
 private:
 	std::array<std::shared_ptr<Component>, COMPONENT_TYPE_COUNT> m_pComponents = {};
 	std::vector<std::shared_ptr<Script>> m_pScripts;
@@ -57,4 +60,11 @@ template<ComponentType T>
 inline 	std::shared_ptr<T> GameObject::GetComponent()
 {
 	return static_pointer_cast<T>(m_pComponents[Component_Type<T>::componentType]);
+}
+
+template<ScriptType T>
+inline void GameObject::AddScript()
+{
+	std::shared_ptr<T> pScript = std::make_shared<T>(shared_from_this());
+	m_pScripts.push_back(pScript);
 }

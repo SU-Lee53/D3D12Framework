@@ -34,7 +34,7 @@ public:
 private:
 	XMFLOAT4X4 m_xmf4x4Local = {};	// relative
 	XMFLOAT4X4 m_xmf4x4World = {};	// world
-	
+
 	std::string m_strBindSemantic = "TRANSFORM";
 };
 
