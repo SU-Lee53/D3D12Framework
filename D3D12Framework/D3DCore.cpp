@@ -118,7 +118,7 @@ void D3DCore::CreateSwapChain()
 	::ZeroMemory(&dxgiSwapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
 	{
 		dxgiSwapChainDesc.BufferCount = m_nSwapChainBuffers;
-		dxgiSwapChainDesc.BufferDesc.Width = WinCore::sm_dwClientHeight;
+		dxgiSwapChainDesc.BufferDesc.Width = WinCore::sm_dwClientWidth;
 		dxgiSwapChainDesc.BufferDesc.Height = WinCore::sm_dwClientHeight;
 		dxgiSwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		dxgiSwapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
