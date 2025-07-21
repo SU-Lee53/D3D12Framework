@@ -19,7 +19,7 @@ GameFramework::GameFramework(BOOL bEnableDebugLayer, BOOL bEnableGBV)
 	// Init Scene
 	m_pScene = std::make_shared<TestScene>();
 	m_pScene->BuilObjects();
-	g_pResourceManager->ExcuteCommandList();
+	//g_pResourceManager->ExcuteCommandList();
 }
 
 void GameFramework::Update()
@@ -36,5 +36,9 @@ void GameFramework::Render()
 
 
 	m_pD3DCore->RenderEnd();
+
+	g_pResourceManager->ResetCBufferBool();
+
 	m_pD3DCore->Present();
+	m_pD3DCore->MoveToNextFrame();
 }

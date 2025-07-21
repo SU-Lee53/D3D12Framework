@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "CubeObject.h"
 #include "Mesh.h"
+#include "Transform.h"
 
-void GenerateCube(std::vector<DiffusedVertex> vtx, std::vector<UINT> idx, float fWidth, float fHeight, float fDepth)
+void GenerateCube(OUT std::vector<DiffusedVertex>& vtx, OUT std::vector<UINT>& idx, float fWidth, float fHeight, float fDepth)
 {
 	vtx.resize(8);
 
@@ -64,6 +65,12 @@ void CubeObject::Initialize()
 
 void CubeObject::Update()
 {
+	auto pTransform = m_wpOwner.lock()->GetComponent<Transform>();
+
+	pTransform->Rotate(pTransform->GetLocalUp(), 1.f);
+
+
+
 }
 
 void CubeObject::OnCollision()

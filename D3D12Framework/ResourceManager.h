@@ -35,6 +35,9 @@ public:
 	~ResourceManager();
 
 public:
+	void ResetCommandList();
+
+public:
 	template<typename T>
 	VertexBuffer CreateVertexBuffer(std::vector<T> vertices);
 	IndexBuffer CreateIndexBuffer(std::vector<UINT> Indices);
@@ -42,8 +45,12 @@ public:
 	void ExcuteCommandList();
 
 public:
-	ConstantBuffer& AllocConstantBuffer() {
+	ConstantBuffer& AllocCBuffer() {
 		return m_pConstantBufferPool->Allocate();
+	}
+
+	void ResetCBufferBool() {
+		m_pConstantBufferPool->Reset();
 	}
 
 private:
@@ -90,6 +97,8 @@ inline VertexBuffer ResourceManager::CreateVertexBuffer(std::vector<T> vertices)
 	}
 
 	if (!vertices.empty()) {
+		ResetCommandList();
+
 		hr = m_pd3dDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
@@ -119,8 +128,8 @@ inline VertexBuffer ResourceManager::CreateVertexBuffer(std::vector<T> vertices)
 			m_pd3dCommandList->CopyBufferRegion(Buffer.pResource.Get(), 0, pUploadBuffer.Get(), 0, VertexBufferSize);
 		}
 		Buffer.StateTransition(m_pd3dCommandList, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-		m_pd3dCommandList->Close();
 
+		ExcuteCommandList();
 	}
 
 	D3D12_VERTEX_BUFFER_VIEW VertexBufferView;

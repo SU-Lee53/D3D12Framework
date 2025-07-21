@@ -34,23 +34,31 @@ public:
 	void SetViewport(int xTopLeft, int yTopLeft, int nWidth, int nHeight, float fMinZ = 0.0f, float fMaxZ = 1.0f);
 	void SetScissorRect(LONG xLeft, LONG yTop, LONG xRight, LONG yBottom);
 
-	virtual void SetViewportsAndScissorRects(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void SetViewportsAndScissorRects(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList);
 
 private:
+	BoundingFrustum m_xmFrustum = {};
+
 	XMFLOAT4X4 m_xmf4x4View;
 	XMFLOAT4X4 m_xmf4x4Projection;
 
-    float m_ffovY = 0.f;
-    float m_fAspectRatio = 0.f;
-    float m_fNear = 0.f;
-    float m_fFar = 0.f;
+	float m_ffovY = 0.f;
+	float m_fAspectRatio = 0.f;
+	float m_fNear = 0.f;
+	float m_fFar = 0.f;
 
-    XMFLOAT3 m_xmf3Eye	= {};
-    XMFLOAT3 m_xmf3At	= {};
-    XMFLOAT3 m_xmf3Up	= {};
+	XMFLOAT3 m_xmf3Right = {};
+	XMFLOAT3 m_xmf3Up = {};
+	XMFLOAT3 m_xmf3Look = {};
+	XMFLOAT3 m_xmf3LookAtWorld = {};
+
+	XMFLOAT3 m_xmf3Position = {};
+	XMFLOAT3 m_xmf3Rotation = {};
 
 	D3D12_VIEWPORT	m_d3dViewport = {};
 	D3D12_RECT		m_d3dScissorRect = {};
+
+	ComPtr<ID3D12GraphicsCommandList> m_pd3dViewportScissorrectBindingBundleCommand = nullptr;
 
 	std::shared_ptr<GameObject> m_pOwner = nullptr;
 

@@ -412,6 +412,18 @@ void D3DCore::Present()
 	m_pdxgiSwapChain->Present1(1, 0, &dxgiPresentParameters);
 }
 
+void D3DCore::MoveToNextFrame()
+{
+	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+
+	UINT64 nFenceValue = ++m_nFenceValues[m_nSwapChainBufferIndex];
+	HRESULT hResult = m_pd3dCommandQueue->Signal(m_pd3dFence.Get(), nFenceValue);
+	if (m_pd3dFence->GetCompletedValue() < nFenceValue) {
+		hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
+		::WaitForSingleObject(m_hFenceEvent, INFINITE);
+	}
+}
+
 void D3DCore::WaitForGPUComplete()
 {
 	UINT64 nFenceValue = ++m_nFenceValues[m_nSwapChainBufferIndex];

@@ -14,6 +14,18 @@ ResourceManager::~ResourceManager()
 {
 }
 
+void ResourceManager::ResetCommandList()
+{
+	HRESULT hr;
+	hr = m_pd3dCommandAllocator->Reset();
+	hr = m_pd3dCommandList->Reset(m_pd3dCommandAllocator.Get(), NULL);
+	if (FAILED(hr)) {
+		SHOW_ERROR("Faied to reset CommandList");
+		__debugbreak();
+	}
+}
+
+
 void ResourceManager::CreateCommandList()
 {
 	HRESULT hr{};
@@ -81,6 +93,8 @@ IndexBuffer ResourceManager::CreateIndexBuffer(std::vector<UINT> Indices)
 	}
 
 	if (!Indices.empty()) {
+		ResetCommandList();
+
 		hr = m_pd3dDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
@@ -110,8 +124,8 @@ IndexBuffer ResourceManager::CreateIndexBuffer(std::vector<UINT> Indices)
 			m_pd3dCommandList->CopyBufferRegion(Buffer.pResource.Get(), 0, pUploadBuffer.Get(), 0, IndexBufferSize);
 		}
 		Buffer.StateTransition(m_pd3dCommandList, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-		m_pd3dCommandList->Close();
 
+		ExcuteCommandList();
 	}
 
 	D3D12_INDEX_BUFFER_VIEW IndexBufferView;

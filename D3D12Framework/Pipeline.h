@@ -71,8 +71,8 @@ public:
 
 		// 2. Init RootSignature
 		std::vector<SHADER_RESOURCE_BIND_INFO> binders(2);
-		binders[0].InitAsRootDescriptor("TRANSFORM", SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, 0);
-		binders[1].InitAsRootDescriptor("CAMERA", SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, 1);
+		binders[1].InitAsRootDescriptor("CAMERA", SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, 0);
+		binders[0].InitAsRootDescriptor("TRANSFORM", SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, 1);
 
 		m_pRootSignature = std::make_shared<RootSignature>(pd3dDevice, binders);
 

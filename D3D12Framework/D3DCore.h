@@ -9,6 +9,7 @@ public:
 	void Render();
 	void RenderEnd();
 	void Present();
+	void MoveToNextFrame();
 
 
 private:

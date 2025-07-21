@@ -35,9 +35,9 @@ void GameObject::Update()
 		}
 	}
 
-	//	for (auto& script : m_pScripts) {
-	//		script->Update();
-	//	}
+	for (auto& script : m_pScripts) {
+		script->Update();
+	}
 
 	if (m_pParent) {
 		m_pParent->Update();

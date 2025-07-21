@@ -99,7 +99,7 @@ inline ConstantBuffer& ConstantBufferPool<nMaxCBVCount>::Allocate()
 	if (m_nAllocated >= nMaxCBVCount) std::exit(99);
 #endif
 	
-	return m_CBuffers[++m_nAllocated];
+	return m_CBuffers[m_nAllocated++];
 }
 
 template<size_t nMaxCBVCount>

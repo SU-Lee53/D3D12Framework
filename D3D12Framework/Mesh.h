@@ -34,7 +34,7 @@ private:
 
 template <>
 struct Component_Type<Mesh> {
-	constexpr static COMPONENT_TYPE componentType = COMPONENT_TYPE_TRANSFORM;
+	constexpr static COMPONENT_TYPE componentType = COMPONENT_TYPE_MESH;
 };
 
 template<typename T, typename U>
@@ -54,8 +54,8 @@ inline Mesh::Mesh(std::shared_ptr<GameObject> pOwner, std::vector<T> vertices, s
 
 	m_VertexBuffer = RESOURCE->CreateVertexBuffer(vertices);
 	
-	m_IndexBuffers.reserve(SubMeshes.size());
 	if constexpr (std::is_same_v <U, std::vector<UINT>>) {
+		m_IndexBuffers.reserve(SubMeshes.size());
 		for (const auto& indices : SubMeshes) {
 			m_IndexBuffers.push_back(RESOURCE->CreateIndexBuffer(indices));
 		}
