@@ -3,6 +3,6 @@
 #include "GameObject.h"
 
 Component::Component(std::shared_ptr<GameObject> pOwner)
-	: m_pOwner{ pOwner }
+	: m_wpOwner{ pOwner }
 {
 }

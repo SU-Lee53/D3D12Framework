@@ -60,7 +60,7 @@ private:
 
 	ComPtr<ID3D12GraphicsCommandList> m_pd3dViewportScissorrectBindingBundleCommand = nullptr;
 
-	std::shared_ptr<GameObject> m_pOwner = nullptr;
+	std::shared_ptr<GameObject> m_wpOwner = nullptr;
 
 	std::string m_strBindSemantic = "CAMERA";
 };

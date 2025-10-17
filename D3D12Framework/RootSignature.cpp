@@ -142,6 +142,7 @@ std::vector<CD3DX12_ROOT_PARAMETER> RootSignature::CreateRootParameter(std::span
 				// Structured Buffer 로 들어갈 만큼 큰 버퍼는 Descriptor Table 로 넣으면 컴퓨터 맛탱이 가므로 하지말것
 				default:
 					__debugbreak();
+					std::terminate();
 					break;
 				}
 				rootRarameters.push_back(rootParameter);

@@ -1,18 +1,71 @@
 #include "stdafx.h"
 #include "Mesh.h"
 
-void Mesh::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nInstanceCount)
-{
-	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	pd3dCommandList->IASetVertexBuffers(0, 1, &m_VertexBuffer.VertexBufferView);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Mesh 
 
-	if (!m_IndexBuffers.empty()) {
-		for (const auto& IndexBuffer : m_IndexBuffers) {
-			pd3dCommandList->IASetIndexBuffer(&(IndexBuffer.IndexBufferView));
-			pd3dCommandList->DrawIndexedInstanced(IndexBuffer.nIndices, nInstanceCount, 0, 0, 0);
-		}
+Mesh::Mesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology)
+{
+	m_d3dPrimitiveTopology = d3dTopology;
+	m_nSlot = 0;
+	m_nVertices = meshLoadInfo.v3Positions.size();
+	m_nOffset = 0;
+	m_nType = meshLoadInfo.nType;
+
+	m_PositionBuffer = RESOURCE->CreateVertexBuffer(meshLoadInfo.v3Positions, MESH_ELEMENT_TYPE_POSITION);
+
+	// IB
+	m_IndexBuffers.reserve(meshLoadInfo.SubMeshes.size());
+	for (const auto& indices : meshLoadInfo.SubMeshes) {
+		m_IndexBuffers.push_back(RESOURCE->CreateIndexBuffer(indices));
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DiffusedMesh 
+
+DiffusedMesh::DiffusedMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology)
+	: Mesh(meshLoadInfo, d3dTopology)
+{
+	m_ColorBuffer = RESOURCE->CreateVertexBuffer(meshLoadInfo.v4Colors, MESH_ELEMENT_TYPE_COLOR);
+}
+
+void DiffusedMesh::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount)
+{
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[2] = { m_PositionBuffer.VertexBufferView, m_ColorBuffer.VertexBufferView };
+	pd3dCommandList->IASetVertexBuffers(0, 2, vertexBufferViews);
+
+	if (m_IndexBuffers.size() != 0) {
+		pd3dCommandList->IASetIndexBuffer(&m_IndexBuffers[nSubSet].IndexBufferView);
+		pd3dCommandList->DrawIndexedInstanced(m_IndexBuffers[nSubSet].nIndices, nInstanceCount, 0, 0, 0);
 	}
 	else {
-		pd3dCommandList->DrawInstanced(m_nVertices, nInstanceCount, m_nOffset, 0);
+		pd3dCommandList->DrawInstanced(m_PositionBuffer.nVertices, nInstanceCount, 0, 0);
 	}
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TexturedMesh 
+
+TexturedMesh::TexturedMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology)
+	: Mesh(meshLoadInfo, d3dTopology)
+{
+	m_NormalBuffer = RESOURCE->CreateVertexBuffer(meshLoadInfo.v3Normals, MESH_ELEMENT_TYPE_COLOR);
+	m_TexCoordBuffer = RESOURCE->CreateVertexBuffer(meshLoadInfo.v2TexCoord0, MESH_ELEMENT_TYPE_COLOR);
+}
+
+void TexturedMesh::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount)
+{
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[3] = { m_PositionBuffer.VertexBufferView, m_NormalBuffer.VertexBufferView, m_TexCoordBuffer.VertexBufferView };
+	pd3dCommandList->IASetVertexBuffers(0, 2, vertexBufferViews);
+
+	if (m_IndexBuffers.size() != 0) {
+		pd3dCommandList->IASetIndexBuffer(&m_IndexBuffers[nSubSet].IndexBufferView);
+		pd3dCommandList->DrawIndexedInstanced(m_IndexBuffers[nSubSet].nIndices, nInstanceCount, 0, 0, 0);
+	}
+	else {
+		pd3dCommandList->DrawInstanced(m_PositionBuffer.nVertices, nInstanceCount, 0, 0);
+	}
+
 }

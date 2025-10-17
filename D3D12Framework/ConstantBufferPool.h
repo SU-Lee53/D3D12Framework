@@ -7,9 +7,9 @@
 // - ID3D12Resource 와 ID3D12DescriptorHeap 의 쌍으로 구성 (struct ConstantBuffer)
 //		- Root Descriptor 로 전달하려면 바로 GPU 주소를 보낼 수 있음
 //		- Descriptor Table 로 전달하려면 아래의 절차를 따라야 함
-// - D3D12_DESCRIPTOR_HEAP_FLAG_NONE 이 아니므로 사용을 위해 
-//	 D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE 인 Descriptor Heap 에 
-//	 CopyDescriptorsSimple를 수행해야 함
+//			- D3D12_DESCRIPTOR_HEAP_FLAG_NONE 이 아니므로 사용을 위해 
+//			  D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE 인 Descriptor Heap 에 
+//			  CopyDescriptorsSimple를 수행해야 함
 // - 나중에 딱 필요한 최대 크기만큼함 Pool 크기를 잡아서 사용
 // ================================================================================
 

@@ -104,6 +104,7 @@
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -120,6 +121,7 @@
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
+      <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -136,10 +138,15 @@
     <ClInclude Include="D3DCore.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="DescriptorHeap.h" />
+    <ClInclude Include="DiffusedRenderer.h" />
+    <ClInclude Include="DirectXTex\DDSTextureLoader12.h" />
+    <ClInclude Include="DirectXTex\WICTextureLoader12.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputLayout.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="RenderPass.h" />
@@ -149,10 +156,12 @@
     <ClInclude Include="Script.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderResource.h" />
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SimpleMath.h" />
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TestScene.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="WinCore.h" />
@@ -165,11 +174,22 @@
     <ClCompile Include="CubeObject.cpp" />
     <ClCompile Include="D3DCore.cpp" />
     <ClCompile Include="DescriptorHeap.cpp" />
+    <ClCompile Include="DiffusedRenderer.cpp" />
+    <ClCompile Include="DirectXTex\DDSTextureLoader12.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="DirectXTex\WICTextureLoader12.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="entry.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="InputLayout.cpp" />
+    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="RenderPass.cpp" />
@@ -179,11 +199,16 @@
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderResource.cpp" />
+    <ClCompile Include="SimpleMath.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TestScene.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="WinCore.cpp" />
@@ -196,10 +221,14 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="HLSL\Common.hlsl" />
     <FxCompile Include="HLSL\DiffusedShader.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleMath.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

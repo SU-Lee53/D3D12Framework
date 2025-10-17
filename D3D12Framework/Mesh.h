@@ -1,67 +1,93 @@
 #pragma once
-#include "Component.h"
 #include "ShaderResource.h"
 #include "InputLayout.h"
 
-class Mesh : public Component {
-public:
-	Mesh() = default;
+/*
+	- Mesh 개편
+		- 서로 다른 Input Element는 별개의 정점버퍼를 갖도록 한다
+			- 이유 : 한번에 모든 Input Element를 하나의 VB로 묶으면 
+			         Prepass 등에서 원하는 요소만 바인딩할 수 없음
 
-	template<typename T, typename U>
-	Mesh(std::shared_ptr<GameObject> pOwner, std::vector<T> vertices, std::vector<U> SubMeshes,
-		D3D12_PRIMITIVE_TOPOLOGY d3dTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST,
-		UINT nSlot = 0, UINT nOffset = 0);
+		- 기존 방식도 일단 유지
+*/
+
+struct MESHLOADINFO {
+	std::string				strMeshName;
+
+	UINT					nType;			// MESH_ELEMENT_TYPE
+
+	Vector3				xmf3AABBCenter = Vector3(0.0f, 0.0f, 0.0f);
+	Vector3				xmf3AABBExtents = Vector3(0.0f, 0.0f, 0.0f);
+
+	std::vector<Vector3>	v3Positions;
+	std::vector<Vector4>	v4Colors;
+	std::vector<Vector3>	v3Normals;
+	std::vector<Vector3>	v3Tangents;
+							
+	std::vector<Vector2>	v2TexCoord0;
+	std::vector<Vector2>	v2TexCoord1;
+	std::vector<Vector2>	v2TexCoord2;
+	std::vector<Vector2>	v2TexCoord3;
+	
+	std::vector<XMINT4>		xmi4BlendIndices;
+	std::vector<Vector4>	v4BlendWeights;
+
+	std::vector<UINT>		Indices;
+
+	std::vector<std::vector<UINT>> SubMeshes;
+
+};
+
+class Mesh {
+public:
+	Mesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	virtual ~Mesh() {}
 
-	virtual void Update() override {}
-	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nInstanceCount = 1);
+	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount = 1) = 0;
 
-private:
-	VertexBuffer				m_VertexBuffer;
-	std::vector<IndexBuffer>	m_IndexBuffers;	// vector for submeshes
+protected:
+	VertexBuffer					m_PositionBuffer;
+	std::vector<IndexBuffer>		m_IndexBuffers;	// vector for submeshes
 
-private:
-	D3D12_PRIMITIVE_TOPOLOGY		m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+protected:
+	D3D12_PRIMITIVE_TOPOLOGY		m_d3dPrimitiveTopology;
 	UINT							m_nSlot = 0;
 	UINT							m_nVertices = 0;
 	UINT							m_nOffset = 0;
 
-private:
+	UINT							m_nType = 0;
+
+protected:
 	// Bounding Volume
 	BoundingOrientedBox m_xmOBB;
 };
 
-template <>
-struct Component_Type<Mesh> {
-	constexpr static COMPONENT_TYPE componentType = COMPONENT_TYPE_MESH;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DiffusedMesh
+
+class DiffusedMesh : public Mesh{
+public:
+	DiffusedMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount = 1) override;
+
+protected:
+	VertexBuffer	m_ColorBuffer;
+
 };
 
-template<typename T, typename U>
-inline Mesh::Mesh(std::shared_ptr<GameObject> pOwner, std::vector<T> vertices, std::vector<U> SubMeshes,
-	D3D12_PRIMITIVE_TOPOLOGY d3dTopology, UINT nSlot, UINT nOffset)
-	: Component{pOwner}
-{
-	static_assert(
-		std::is_same<U, std::vector<UINT>>::value ||
-		std::is_same<U, UINT>::value,
-		"SubMeshes types are valid when vector<UINT> or UINT."
-	);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TexturedMesh
 
-	m_nSlot = 0;
-	m_nVertices = vertices.size();
-	m_nOffset = 0;
+class TexturedMesh : public Mesh {
+public:
+	TexturedMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	m_VertexBuffer = RESOURCE->CreateVertexBuffer(vertices);
-	
-	if constexpr (std::is_same_v <U, std::vector<UINT>>) {
-		m_IndexBuffers.reserve(SubMeshes.size());
-		for (const auto& indices : SubMeshes) {
-			m_IndexBuffers.push_back(RESOURCE->CreateIndexBuffer(indices));
-		}
-	}
-	else {
-		m_IndexBuffers.push_back(RESOURCE->CreateIndexBuffer(SubMeshes));
-	}
+	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount = 1) override;
 
-}
+protected:
+	VertexBuffer	m_NormalBuffer;
+	VertexBuffer	m_TexCoordBuffer;
+
+};

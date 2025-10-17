@@ -9,6 +9,7 @@ struct VertexBuffer {
 	ShaderResource VertexBuffer;
 	UINT nVertices;
 	D3D12_VERTEX_BUFFER_VIEW VertexBufferView;
+	MESH_ELEMENT_TYPE nType;
 };
 
 struct IndexBuffer {
@@ -29,6 +30,8 @@ struct IndexBuffer {
 
 constexpr static size_t MAX_CB_POOL_SIZE = 1024;
 
+class Texture;
+
 class ResourceManager {
 public:
 	ResourceManager(ComPtr<ID3D12Device14> pDevice);
@@ -39,10 +42,11 @@ public:
 
 public:
 	template<typename T>
-	VertexBuffer CreateVertexBuffer(std::vector<T> vertices);
+	VertexBuffer CreateVertexBuffer(std::vector<T> vertices, UINT nType);
 	IndexBuffer CreateIndexBuffer(std::vector<UINT> Indices);
 
-	void ExcuteCommandList();
+	std::shared_ptr<Texture> CreateTextureFromFile(const std::wstring& wstrTexturePath);
+	std::shared_ptr<Texture> CreateBlankTexture() = delete;	// 아직 미구현
 
 public:
 	ConstantBuffer& AllocCBuffer() {
@@ -58,6 +62,8 @@ private:
 	void CreateFence();
 	void WaitForGPUComplete();
 
+	void ExcuteCommandList();
+
 private:
 	ComPtr<ID3D12Device14>				m_pd3dDevice = nullptr;		// Reference to D3DCore::m_pd3dDevice
 	ComPtr<ID3D12GraphicsCommandList>	m_pd3dCommandList = nullptr;
@@ -71,10 +77,12 @@ private:
 private:
 	std::shared_ptr<ConstantBufferPool<MAX_CB_POOL_SIZE>> m_pConstantBufferPool = nullptr;
 
+	// Texture Pool
+	std::unordered_map<std::string, std::shared_ptr<Texture>> m_pTexturePool;
 };
 
 template<typename T>
-inline VertexBuffer ResourceManager::CreateVertexBuffer(std::vector<T> vertices)
+inline VertexBuffer ResourceManager::CreateVertexBuffer(std::vector<T> vertices, UINT nType)
 {
 	HRESULT hr;
 
@@ -137,5 +145,5 @@ inline VertexBuffer ResourceManager::CreateVertexBuffer(std::vector<T> vertices)
 	VertexBufferView.StrideInBytes = sizeof(T);
 	VertexBufferView.SizeInBytes = VertexBufferSize;
 
-	return { Buffer, nVertices, VertexBufferView };
+	return { Buffer, nVertices, VertexBufferView, nType };
 }

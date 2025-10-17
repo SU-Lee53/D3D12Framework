@@ -2,20 +2,20 @@
 #include "Transform.h"
 #include "GameObject.h"
 
-Transform::Transform(std::shared_ptr<GameObject> pOwner)
-	: Component{ pOwner }
+Transform::Transform()
 {
-	XMStoreFloat4x4(&m_xmf4x4Local, XMMatrixIdentity());
-	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());
+	m_mtxTransform = Matrix::Identity;
+	m_mtxWorld = Matrix::Identity;
 }
 
-void Transform::Update()
+void Transform::Update(std::shared_ptr<GameObject> pParent)
 {
+	m_mtxWorld = (pParent) ? ((m_mtxTransform * m_mtxFrameRelative) * pParent->GetTransform().m_mtxWorld) : (m_mtxTransform * m_mtxFrameRelative);
 }
 
-void Transform::SetLocalMatrix(const XMFLOAT4X4& xmf4x4Local)
+void Transform::SetLocalMatrix(const Matrix& xmf4x4Local)
 {
-	m_xmf4x4Local = xmf4x4Local;
+	m_mtxTransform = xmf4x4Local;
 }
 
 // =========
@@ -24,14 +24,17 @@ void Transform::SetLocalMatrix(const XMFLOAT4X4& xmf4x4Local)
 
 void Transform::SetPosition(float x, float y, float z)
 {
-	m_xmf4x4World._41 = x;
-	m_xmf4x4World._42 = y;
-	m_xmf4x4World._43 = z;
+	m_mtxWorld.Translation(Vector3(x, y, z));
 }
 
-void Transform::SetPosition(const XMFLOAT3& xmf3Position)
+void Transform::SetPosition(const Vector3& v3Position)
 {
-	SetPosition(xmf3Position.x, xmf3Position.y, xmf3Position.z);
+	m_mtxWorld.Translation(v3Position);
+}
+
+void Transform::Move(Vector3 v3MoveDirection, float fAmount)
+{
+	m_mtxTransform.Translation(v3MoveDirection * fAmount);	// DeltaTime required
 }
 
 // ======
@@ -40,79 +43,39 @@ void Transform::SetPosition(const XMFLOAT3& xmf3Position)
 
 void Transform::Rotate(float fPitch, float fYaw, float fRoll)
 {
-	XMMATRIX mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(fPitch), XMConvertToRadians(fYaw), XMConvertToRadians(fRoll));
-	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixMultiply(mtxRotate, XMLoadFloat4x4(&m_xmf4x4World)));
+	m_mtxTransform = Matrix::CreateFromYawPitchRoll(XMConvertToRadians(fPitch), XMConvertToRadians(fYaw), XMConvertToRadians(fRoll)) * m_mtxTransform;
 }
 
-void Transform::Rotate(const XMFLOAT3& pxmf3Axis, float fAngle)
+void Transform::Rotate(const Vector3& v3Axis, float fAngle)
 {
-	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&pxmf3Axis), XMConvertToRadians(fAngle));
-	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixMultiply(mtxRotate, XMLoadFloat4x4(&m_xmf4x4World)));
+	m_mtxTransform = Matrix::CreateFromAxisAngle(v3Axis, XMConvertToRadians(fAngle)) * m_mtxTransform;
 }
 
 // =====
 // Basis
 // =====
 
-XMFLOAT3 Transform::GetLocalRight() const
+Vector3 Transform::GetPosition() const
 {
-	XMVECTOR xmvLook = XMVectorSet(m_xmf4x4Local._11, m_xmf4x4Local._12, m_xmf4x4Local._13, 0.f);
-	XMFLOAT3 xmf3Look;
-	XMStoreFloat3(&xmf3Look, xmvLook);
-	return xmf3Look;
+	return m_mtxWorld.Translation();
 }
 
-XMFLOAT3 Transform::GetLocalUp() const
+Vector3 Transform::GetRight() const
 {
-	XMVECTOR xmvLook = XMVectorSet(m_xmf4x4Local._21, m_xmf4x4Local._22, m_xmf4x4Local._23, 0.f);
-	XMFLOAT3 xmf3Look;
-	XMStoreFloat3(&xmf3Look, xmvLook);
-	return xmf3Look;
+	return m_mtxWorld.Right();
 }
 
-XMFLOAT3 Transform::GetLocalLook() const
+Vector3 Transform::GetUp() const
 {
-	XMVECTOR xmvLook = XMVectorSet(m_xmf4x4Local._31, m_xmf4x4Local._32, m_xmf4x4Local._33, 0.f);
-	XMFLOAT3 xmf3Look;
-	XMStoreFloat3(&xmf3Look, xmvLook);
-	return xmf3Look;
+	return m_mtxWorld.Up();
 }
 
-XMFLOAT3 Transform::GetWorldPosition() const
+Vector3 Transform::GetLook() const
 {
-	return XMFLOAT3(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43);
+	return m_mtxWorld.Forward();
 }
 
-XMFLOAT3 Transform::GetWorldRight() const
+Matrix Transform::GetWorldMatrix() const
 {
-	XMVECTOR xmvLook = XMVectorSet(m_xmf4x4World._11, m_xmf4x4World._12, m_xmf4x4World._13, 0.f);
-	XMFLOAT3 xmf3Look;
-	XMStoreFloat3(&xmf3Look, xmvLook);
-	return xmf3Look;
-}
-
-XMFLOAT3 Transform::GetWorldUp() const
-{
-	XMVECTOR xmvLook = XMVectorSet(m_xmf4x4World._21, m_xmf4x4World._22, m_xmf4x4World._23, 0.f);
-	XMFLOAT3 xmf3Look;
-	XMStoreFloat3(&xmf3Look, xmvLook);
-	return xmf3Look;
-}
-
-XMFLOAT3 Transform::GetWorldLook() const
-{
-	XMVECTOR xmvLook = XMVectorSet(m_xmf4x4World._31, m_xmf4x4World._32, m_xmf4x4World._33, 0.f);
-	XMFLOAT3 xmf3Look;
-	XMStoreFloat3(&xmf3Look, xmvLook);
-	return xmf3Look;
-}
-
-XMFLOAT4X4 Transform::GetLocalMatrix() const
-{
-	return m_xmf4x4Local;
-}
-
-XMFLOAT4X4 Transform::GetWorldMatrix() const
-{
-	return m_xmf4x4World;
+	return m_mtxWorld;
 }

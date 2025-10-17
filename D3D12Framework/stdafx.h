@@ -1,14 +1,10 @@
-ï»¿// header.h: í‘œì¤€ ì‹œìŠ¤í…œ í¬í•¨ íŒŒì¼
-// ë˜ëŠ” í”„ë¡œì íŠ¸ íŠ¹ì • í¬í•¨ íŒŒì¼ì´ ë“¤ì–´ ìˆëŠ” í¬í•¨ íŒŒì¼ì…ë‹ˆë‹¤.
-//
-
 #pragma once
 
 #include "targetver.h"
-#define WIN32_LEAN_AND_MEAN             // ê±°ì˜ ì‚¬ìš©ë˜ì§€ ì•ŠëŠ” ë‚´ìš©ì„ Windows í—¤ë”ì—ì„œ ì œì™¸í•©ë‹ˆë‹¤.
-// Windows í—¤ë” íŒŒì¼
+#define WIN32_LEAN_AND_MEAN             // °ÅÀÇ »ç¿ëµÇÁö ¾Ê´Â ³»¿ëÀ» Windows Çì´õ¿¡¼­ Á¦¿ÜÇÕ´Ï´Ù.
+// Windows Çì´õ ÆÄÀÏ
 #include <windows.h>
-// C ëŸ°íƒ€ì„ í—¤ë” íŒŒì¼ì…ë‹ˆë‹¤.
+// C ·±Å¸ÀÓ Çì´õ ÆÄÀÏÀÔ´Ï´Ù.
 #include <stdlib.h>
 #include <malloc.h>
 #include <memory.h>
@@ -19,6 +15,7 @@
 
 // STL Essentials
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <string>
 #include <array>
@@ -30,6 +27,7 @@
 #include <ranges>
 #include <concepts>
 #include <utility>
+#include <filesystem>
 
 
 // Direct3D related headers
@@ -52,6 +50,12 @@
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 
+// DirectXTex
+#include "DirectXTex/DDSTextureLoader12.h"
+#include "DirectXTex/WICTextureLoader12.h"
+
+#include "SimpleMath.h"
+using namespace DirectX::SimpleMath;
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;

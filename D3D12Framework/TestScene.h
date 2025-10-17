@@ -12,7 +12,6 @@ public:
 
 protected:
 	void ProcessInput() override;
-	void UpdateObjects() override;
 
 
 };

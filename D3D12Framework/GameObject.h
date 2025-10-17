@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "Script.h"
+#include "Transform.h"
 
 
 class GameObject : public std::enable_shared_from_this<GameObject> {
@@ -20,13 +21,20 @@ public:
 	template<ComponentType T, typename... Args>
 	void AddComponent(Args&&... args);
 	
+	
+	template<ComponentType T, typename... Args>
+	void AddComponent(std::shared_ptr<T> pComponent);
+	
 	template<ComponentType T>
 	std::shared_ptr<T> GetComponent();
+
+	Transform& GetTransform() { return m_Transform; }
 
 	template<ScriptType T>
 	void AddScript();
 
 private:
+	Transform m_Transform{};
 	std::array<std::shared_ptr<Component>, COMPONENT_TYPE_COUNT> m_pComponents = {};
 	std::vector<std::shared_ptr<Script>> m_pScripts;
 
@@ -53,7 +61,27 @@ inline void GameObject::AddComponent()
 template<ComponentType T, typename... Args>
 inline void GameObject::AddComponent(Args&&... args)
 {
-	m_pComponents[Component_Type<T>::componentType] = std::make_shared<T>(shared_from_this(), std::forward<Args>(args)...);
+	if constexpr (std::derived_from<T, MeshRenderer>) {
+		m_pComponents[MeshRenderer::componentType] = std::make_shared<T>(shared_from_this(), std::forward<Args>(args)...);
+	}
+	else {
+		m_pComponents[Component_Type<T>::componentType] = std::make_shared<T>(shared_from_this(), std::forward<Args>(args)...);
+	}
+}
+
+template<ComponentType T, typename ...Args>
+inline void GameObject::AddComponent(std::shared_ptr<T> pComponent)
+{
+	if (pComponent->IsOwnerExpired() || pComponent->GetOwner().get() != this) {
+		pComponent->SetOwner(shared_from_this());
+	}
+
+	if constexpr (std::derived_from<T, MeshRenderer>) {
+		m_pComponents[MeshRenderer::componentType] = pComponent;
+	}
+	else {
+		m_pComponents[Component_Type<T>::componentType] = pComponent;
+	}
 }
 
 template<ComponentType T>

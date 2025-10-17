@@ -32,7 +32,8 @@ public:
 
 protected:
 	virtual void ProcessInput() = 0;
-	virtual void UpdateObjects() = 0;
+	void InitializeObjects();
+	void UpdateObjects();
 
 protected:
 	std::vector<std::shared_ptr<GameObject>> m_pGameObjects = {};

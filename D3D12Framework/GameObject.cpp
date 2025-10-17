@@ -13,13 +13,13 @@ GameObject::~GameObject()
 
 void GameObject::Initialize()
 {
-	AddComponent<Transform>();
+	for (auto& component : m_pComponents) {
+		if (component) {
+			component->Initialize();
+		}
+	}
 	for (auto& script : m_pScripts) {
 		script->Initialize();
-	}
-
-	if (m_pParent) {
-		m_pParent->Initialize();
 	}
 	
 	for (auto& pChild : m_pChildren) {
@@ -39,9 +39,7 @@ void GameObject::Update()
 		script->Update();
 	}
 
-	if (m_pParent) {
-		m_pParent->Update();
-	}
+	m_Transform.Update(m_pParent);
 
 	for (auto& pChild : m_pChildren) {
 		pChild->Update();

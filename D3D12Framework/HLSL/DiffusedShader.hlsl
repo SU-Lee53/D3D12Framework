@@ -1,31 +1,10 @@
-
-struct VS_DIFFUSED_INPUT
-{
-    float3 pos : POSITION;
-    float4 color : COLOR;
-};
-
-struct VS_DIFFUSED_OUTPUT
-{
-    float4 pos : SV_POSITION;
-    float4 color : COLOR;
-};
-
-cbuffer cbCameraData : register(b0)
-{
-    matrix gmtxViewProjection;
-};
-
-cbuffer cbWorldTransformData : register(b1)
-{
-    matrix gmtxWorld;
-}
+#include "Common.hlsl"
 
 VS_DIFFUSED_OUTPUT VSDiffused(VS_DIFFUSED_INPUT input)
 {
     VS_DIFFUSED_OUTPUT output;
     
-    output.pos = mul(mul(float4(input.pos, 1), gmtxWorld), gmtxViewProjection);
+    output.pos = mul(mul(float4(input.pos, 1), instanceData.mtxWorld), gmtxViewProjection);
     output.color = input.color;
     
     return output;
@@ -34,4 +13,17 @@ VS_DIFFUSED_OUTPUT VSDiffused(VS_DIFFUSED_INPUT input)
 float4 PSDiffused(VS_DIFFUSED_OUTPUT input) : SV_TARGET
 {
     return input.color;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+
+VS_DIFFUSED_OUTPUT VSDiffusedInstanced(VS_DIFFUSED_INPUT input, uint nInstanceID : SV_InstanceID)
+{
+    VS_DIFFUSED_OUTPUT output;
+    
+    output.pos = mul(mul(float4(input.pos, 1), gsbInstanceDatas[nInstanceID].mtxWorld), gmtxViewProjection);
+    output.color = input.color;
+    
+    return output;
 }

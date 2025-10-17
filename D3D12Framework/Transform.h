@@ -1,44 +1,42 @@
 #pragma once
 #include "Component.h"
 
-class Transform : public Component {
+class Transform {
 public:
-	Transform(std::shared_ptr<GameObject> pOwner);
+	Transform();
 
-	virtual void Update() override;
-
-public:
-	void SetLocalMatrix(const XMFLOAT4X4& xmf4x4Local);
+	void Update(std::shared_ptr<GameObject> pParent = nullptr);
 
 public:
+	void SetLocalMatrix(const Matrix& xmf4x4Local);
+
+public:
+	// 테스트 필요. 일단 제거
 	void SetPosition(float x, float y, float z);
-	void SetPosition(const XMFLOAT3& xmf3Position);
+	void SetPosition(const Vector3& xmf3Position);
+
+	void Move(Vector3 v3MoveDirection, float fAmount);
 
 public:
 	void Rotate(float fPitch, float fYaw, float fRoll);
-	void Rotate(const XMFLOAT3& pxmf3Axis, float fAngle);
+	void Rotate(const Vector3& xmf3Axis, float fAngle);
 
 public:
-	XMFLOAT3 GetLocalRight() const;
-	XMFLOAT3 GetLocalUp() const;
-	XMFLOAT3 GetLocalLook() const;
-
-	XMFLOAT3 GetWorldPosition() const;
-	XMFLOAT3 GetWorldRight() const;
-	XMFLOAT3 GetWorldUp() const;
-	XMFLOAT3 GetWorldLook() const;
+	Vector3 GetPosition() const;
+	Vector3 GetRight() const;
+	Vector3 GetUp() const;
+	Vector3 GetLook() const;
 	
-	XMFLOAT4X4 GetLocalMatrix() const;
-	XMFLOAT4X4 GetWorldMatrix() const;
+	Matrix GetWorldMatrix() const;
 
 private:
-	XMFLOAT4X4 m_xmf4x4Local = {};	// relative
-	XMFLOAT4X4 m_xmf4x4World = {};	// world
+	// m_mtxFrameRelative : 계층 모델에서 부모로부터의 상대 변환
+	// m_mtxTransform : 오브젝트가 수행할 변환의 누적
+	// m_mtxWorld : m_mtxTransform * m_mtxFrameRelative (자식이라면 * (부모의 월드))
+	//             월드 원점 기준 최종 변환 행렬
 
-	std::string m_strBindSemantic = "TRANSFORM";
-};
+	Matrix m_mtxFrameRelative	= {};
+	Matrix m_mtxTransform		= {};
+	Matrix m_mtxWorld			= {};
 
-template <>
-struct Component_Type<Transform> {
-	constexpr static COMPONENT_TYPE componentType = COMPONENT_TYPE_TRANSFORM;
 };

@@ -1,87 +1,62 @@
 #pragma once
-#include <d3dcompiler.h>
 
 
-enum SHADER_TYPE
-{
-	SHADER_TYPE_VERTEX = 0,
-	SHADER_TYPE_HULL,
-	SHADER_TYPE_DOMAIN,
-	SHADER_TYPE_GEOMETRY,
-	SHADER_TYPE_PIXEL,
-	SHADER_TYPE_COMPUTE,
-	SHADER_TYPE_COUNT
-};
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Shader
 
-class ShaderBase {
+class Shader {
 public:
-	D3D12_SHADER_BYTECODE GetShaderBytecode() {
-		return { m_pShaderBlob->GetBufferPointer(), m_pShaderBlob->GetBufferSize() };
-	}
+	/// <summary>
+	/// Shader 를 초기화
+	/// Derived Class 에서 반드시 Override
+	/// </summary>
+	/// <param name="pd3dDevice"></param>
+	/// <param name="pd3dRootSignature">
+	/// nullptr 로 유지할 경우 RenderManager 의 Global Root Signature 를 사용하도록 함
+	/// </param>
+	virtual void Initialize(ComPtr<ID3D12Device14> pd3dDevice, 
+		ComPtr<ID3D12RootSignature> pd3dRootSignature = nullptr) = 0;
 
-	UINT GetShaderVariablesCount() const {
-		return m_nVariables;
-	}
+protected:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() { return D3D12_INPUT_LAYOUT_DESC{}; }
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
+	virtual D3D12_BLEND_DESC CreateBlendState();
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() = 0;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() = 0;
+
+	D3D12_SHADER_BYTECODE CompileShaderFromFile(const std::wstring& wstrFileName, const std::string& strShaderName, const std::string& strShaderProfile, ID3DBlob** ppd3dShaderBlob);
+	D3D12_SHADER_BYTECODE ReadCompiledShaderFromFile(const std::wstring& wstrFileName, ID3DBlob** ppd3dShaderBlob);
 
 
 protected:
-	ComPtr<ID3DBlob> m_pShaderBlob = nullptr;
+	ComPtr<ID3DBlob> m_pd3dVertexShaderBlob = nullptr;
+	ComPtr<ID3DBlob> m_pd3dPixelShaderBlob = nullptr;
 
-public:
-	UINT m_nVariables = 0;
+	std::vector<ComPtr<ID3D12PipelineState>>	m_pd3dPipelineStates = {};
+
+	std::vector<D3D12_INPUT_ELEMENT_DESC>		m_d3dInputElements = {};
+
 };
 
-template <SHADER_TYPE shaderTy>
-class Shader : public ShaderBase {
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// DiffusedShader
+
+class DiffusedShader : public Shader {
 public:
-	Shader() = default;
-	Shader(std::wstring_view wstrFileName, std::string_view strShaderName, UINT nVariables);
-	virtual ~Shader() {}
+	virtual void Initialize(ComPtr<ID3D12Device14> pd3dDevice, 
+		ComPtr<ID3D12RootSignature> pd3dRootSignature = nullptr) override;
 
-private:
-	constexpr std::string_view GetShaderProfile() {
-		if constexpr (shaderTy == SHADER_TYPE_VERTEX)
-			return "vs_5_1";
-		else if constexpr (shaderTy == SHADER_TYPE_GEOMETRY)
-			return "gs_5_1";
-		else if constexpr (shaderTy == SHADER_TYPE_HULL)
-			return "hs_5_1";
-		else if constexpr (shaderTy == SHADER_TYPE_DOMAIN)
-			return "ds_5_1";
-		else if constexpr (shaderTy == SHADER_TYPE_PIXEL)
-			return "ps_5_1";
-		else if constexpr (shaderTy == SHADER_TYPE_COMPUTE)
-			return "cs_5_1";
-	}
+protected:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+
+	D3D12_SHADER_BYTECODE CreateInstancedVertexShader();
+
+	// m_PipelineStates[0] -> No Instancing
+	// m_PipelineStates[1] -> Inscancing
+
 };
-
-template<SHADER_TYPE shaderTy>
-inline Shader<shaderTy>::Shader(std::wstring_view wstrFileName, std::string_view strShaderName, UINT nVariables)
-{
-	UINT nCompileFlags = 0;
-#ifdef _DEBUG
-	nCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-	ComPtr<ID3DBlob> pErrorBlob = nullptr;
-
-	std::string shaderProfile { GetShaderProfile() };
-
-	HRESULT hr = ::D3DCompileFromFile(wstrFileName.data(), NULL, NULL, strShaderName.data(), shaderProfile.data(), nCompileFlags, 0, m_pShaderBlob.GetAddressOf(), pErrorBlob.GetAddressOf());
-
-	if (FAILED(hr))
-	{
-		if (pErrorBlob)
-		{
-			OutputDebugStringA((const char*)pErrorBlob->GetBufferPointer());
-			__debugbreak();
-		}
-	}
-}
-
-using VertexShader		= Shader<SHADER_TYPE_VERTEX>;
-using HullShader		= Shader<SHADER_TYPE_HULL>;
-using DomainShader		= Shader<SHADER_TYPE_DOMAIN>;
-using GeometryShader	= Shader<SHADER_TYPE_GEOMETRY>;
-using PixelShader		= Shader<SHADER_TYPE_PIXEL>;
-using ComputeShader		= Shader<SHADER_TYPE_COMPUTE>;
