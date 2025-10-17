@@ -21,7 +21,7 @@ public:
 	void Update() override;
 
 public:
-	virtual void Render(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dGraphicsCommandList) = 0;
+	virtual void Render(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dGraphicsCommandList, void* instanceDatas = nullptr, int nInstances = 0) = 0;
 
 public:
 	bool operator==(const MeshRenderer& rhs) const;

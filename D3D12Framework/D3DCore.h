@@ -35,7 +35,7 @@ public:
 private:
 	ComPtr<IDXGIFactory4>	m_pdxgiFactory = nullptr;
 	ComPtr<IDXGISwapChain3> m_pdxgiSwapChain = nullptr;
-	ComPtr<ID3D12Device14>	m_pd3dDevice = nullptr;
+	ComPtr<ID3D12Device>	m_pd3dDevice = nullptr;
 
 	bool m_bEnableDebugLayer = false;
 	bool m_bEnableGBV = false;

@@ -1,7 +1,6 @@
 #pragma once
-
-class Texture;
-class Shader;
+#include "Texture.h"
+#include "Shader.h"
 
 struct MATERIALLOADINFO {
 	XMFLOAT4		xmf4Ambient;
@@ -42,13 +41,44 @@ struct MaterialColors {
 class Material {
 public:
 	Material(const MATERIALLOADINFO& materialLoadInfo);
+	virtual ~Material();
 
+	virtual void UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind) = 0;
 
-private:
+protected:
 	MaterialColors m_MaterialColors{};
-	std::vector<std::shared_ptr<Texture>> m_pTextures;
+	//std::vector<std::shared_ptr<Texture>> m_pTextures;
 
 	std::shared_ptr<Shader> m_pShader;
 
 };
 
+//////////////////////////////////////////////////////////////////////////////////
+//
+
+class DiffusedMaterial : public Material {
+public:
+	DiffusedMaterial(const MATERIALLOADINFO& materialLoadInfo);
+	virtual ~DiffusedMaterial();
+
+	virtual void UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind) override;
+
+private:
+	
+};
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+
+class TexturedMaterial : public Material {
+public:
+	TexturedMaterial(const MATERIALLOADINFO& materialLoadInfo);
+	virtual ~TexturedMaterial();
+
+	virtual void UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind) override;
+
+private:
+	std::shared_ptr<Texture> m_pDiffusedTexture;
+	std::shared_ptr<Texture> m_pNormalTexture;
+
+};

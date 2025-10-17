@@ -14,8 +14,7 @@ Material::Material(const MATERIALLOADINFO& materialLoadInfo)
 	m_MaterialColors.fMetallic = materialLoadInfo.fMetallic;
 	m_MaterialColors.fGlossyReflection = materialLoadInfo.fGlossyReflection;
 
-	m_MaterialColors.eType = materialLoadInfo.eType;
-
+	/*
 	if(materialLoadInfo.m_strAlbedoMapName.length() != 0){
 		m_pTextures.push_back(RESOURCE->CreateTextureFromFile(::ToWSting(materialLoadInfo.m_strAlbedoMapName)));
 	}
@@ -43,5 +42,49 @@ Material::Material(const MATERIALLOADINFO& materialLoadInfo)
 	if (materialLoadInfo.m_strDetailNormalMapName.length() != 0) {
 		m_pTextures.push_back(RESOURCE->CreateTextureFromFile(::ToWSting(materialLoadInfo.m_strDetailNormalMapName)));
 	}
+	*/
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+
+DiffusedMaterial::DiffusedMaterial(const MATERIALLOADINFO& materialLoadInfo)
+	:Material(materialLoadInfo)
+{
+}
+
+DiffusedMaterial::~DiffusedMaterial()
+{
+}
+
+void DiffusedMaterial::UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind)
+{
+	ConstantBuffer& cbuffer = RESOURCE->AllocCBuffer();
+	cbuffer.WriteData(m_MaterialColors, 0);
+
+}
+
+TexturedMaterial::TexturedMaterial(const MATERIALLOADINFO& materialLoadInfo)
+	:Material(materialLoadInfo)
+{
+	m_pDiffusedTexutre = RESOURCE->CreateTextureFromFile(::ToWSting(materialLoadInfo.m_strAlbedoMapName));
+	m_pNormalTexture = RESOURCE->CreateTextureFromFile(::ToWSting(materialLoadInfo.m_strNormalMapName));
+}
+
+TexturedMaterial::~TexturedMaterial()
+{
+}
+
+void TexturedMaterial::UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind)
+{
+	// 일단 dataForBind 에 Root Parameter Index 가 왔다고 가정
+	// 나중에 변경 필요하면 바꿀것
+
+	int nRootParameterIndex1 = *((int*)dataForBind);
+	int nRootParameterIndex2 = *((int*)dataForBind + 1);
+
+	pd3dCommandList->SetGraphicsRootShaderResourceView(nRootParameterIndex1, m_pDiffusedTexture->GetTexture()->GetGPUVirtualAddress());
+	pd3dCommandList->SetGraphicsRootShaderResourceView(nRootParameterIndex2, m_pNormalTexture->GetTexture()->GetGPUVirtualAddress());
 
 }
