@@ -1,6 +1,5 @@
 #pragma once
 #include "ShaderResource.h"
-#include "InputLayout.h"
 
 /*
 	- Mesh °³Æí
@@ -32,7 +31,7 @@ struct MESHLOADINFO {
 	std::vector<XMINT4>		xmi4BlendIndices;
 	std::vector<Vector4>	v4BlendWeights;
 
-	std::vector<UINT>		Indices;
+	std::vector<UINT>		nIndices;
 
 	std::vector<std::vector<UINT>> SubMeshes;
 
@@ -44,7 +43,7 @@ public:
 
 	virtual ~Mesh() {}
 
-	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount = 1) = 0;
+	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount = 1) const = 0;
 
 protected:
 	VertexBuffer					m_PositionBuffer;
@@ -70,10 +69,21 @@ class DiffusedMesh : public Mesh{
 public:
 	DiffusedMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount = 1) override;
+	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount = 1) const override;
 
 protected:
 	VertexBuffer	m_ColorBuffer;
+
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FullScreenMesh
+
+class FullScreenMesh : public Mesh {
+public:
+	FullScreenMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount = 1) const override;
 
 };
 
@@ -84,7 +94,21 @@ class TexturedMesh : public Mesh {
 public:
 	TexturedMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount = 1) override;
+	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount = 1) const override;
+
+protected:
+	VertexBuffer	m_TexCoordBuffer;
+
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TexturedNormalMesh
+
+class TexturedNormalMesh : public Mesh {
+public:
+	TexturedNormalMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount = 1) const override;
 
 protected:
 	VertexBuffer	m_NormalBuffer;

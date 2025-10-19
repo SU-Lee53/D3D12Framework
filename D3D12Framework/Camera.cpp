@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "Camera.h"
 
 Camera::Camera()
@@ -20,7 +20,7 @@ void Camera::GenerateViewMatrix()
 	);
 }
 
-void Camera::GenerateViewMatrix(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3LookAt, XMFLOAT3 xmf3Up)
+void Camera::GenerateViewMatrix(Vector3 xmf3Position, Vector3 xmf3LookAt, Vector3 xmf3Up)
 {
 	m_xmf3Position = xmf3Position;
 	m_xmf3LookAtWorld = xmf3LookAt;
@@ -77,9 +77,9 @@ void Camera::SetViewportsAndScissorRects(ComPtr<ID3D12GraphicsCommandList> pd3dC
 	pd3dCommandList->RSSetScissorRects(1, &m_d3dScissorRect);
 }
 
-XMFLOAT4X4 Camera::GetViewProjectMatrix() const
+Matrix Camera::GetViewProjectMatrix() const
 {
-	XMFLOAT4X4 ret;
+	Matrix ret;
 
 	XMMATRIX xmmtxView = XMLoadFloat4x4(&m_xmf4x4View);
 	XMMATRIX xmmtxProject = XMLoadFloat4x4(&m_xmf4x4Projection);
@@ -88,22 +88,22 @@ XMFLOAT4X4 Camera::GetViewProjectMatrix() const
 	return ret;
 }
 
-XMFLOAT3 Camera::GetPosition() const
+Vector3 Camera::GetPosition() const
 {
-	return XMFLOAT3();
+	return Vector3();
 }
 
-XMFLOAT3 Camera::GetRight() const
+Vector3 Camera::GetRight() const
 {
-	return XMFLOAT3();
+	return Vector3();
 }
 
-XMFLOAT3 Camera::GetUp() const
+Vector3 Camera::GetUp() const
 {
-	return XMFLOAT3();
+	return Vector3();
 }
 
-XMFLOAT3 Camera::GetLook() const
+Vector3 Camera::GetLook() const
 {
-	return XMFLOAT3();
+	return Vector3();
 }

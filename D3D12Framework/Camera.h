@@ -11,22 +11,22 @@ public:
 
 public:
 	void SetPosition(float x, float y, float z);
-	void SetPosition(const XMFLOAT3& xmf3Position);
+	void SetPosition(const Vector3& xmf3Position);
 
 public:
-	XMFLOAT4X4 GetViewProjectMatrix() const;
+	Matrix GetViewProjectMatrix() const;
 
-	XMFLOAT3 GetPosition() const;
-	XMFLOAT3 GetRight() const;
-	XMFLOAT3 GetUp() const;
-	XMFLOAT3 GetLook() const;
+	Vector3 GetPosition() const;
+	Vector3 GetRight() const;
+	Vector3 GetUp() const;
+	Vector3 GetLook() const;
 
 public:
 	void Rotate(float fPitch, float fYaw, float fRoll);
-	void Rotate(const XMFLOAT3& pxmf3Axis, float fAngle);
+	void Rotate(const Vector3& pxmf3Axis, float fAngle);
 
 	void GenerateViewMatrix();
-	void GenerateViewMatrix(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3LookAt, XMFLOAT3 xmf3Up);
+	void GenerateViewMatrix(Vector3 xmf3Position, Vector3 xmf3LookAt, Vector3 xmf3Up);
 	void RegenerateViewMatrix();
 
 	void GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlaneDistance, float fAspectRatio, float fFOVAngle);
@@ -39,21 +39,21 @@ public:
 private:
 	BoundingFrustum m_xmFrustum = {};
 
-	XMFLOAT4X4 m_xmf4x4View;
-	XMFLOAT4X4 m_xmf4x4Projection;
+	Matrix m_xmf4x4View;
+	Matrix m_xmf4x4Projection;
 
 	float m_ffovY = 0.f;
 	float m_fAspectRatio = 0.f;
 	float m_fNear = 0.f;
 	float m_fFar = 0.f;
 
-	XMFLOAT3 m_xmf3Right = {};
-	XMFLOAT3 m_xmf3Up = {};
-	XMFLOAT3 m_xmf3Look = {};
-	XMFLOAT3 m_xmf3LookAtWorld = {};
+	Vector3 m_xmf3Right = {};
+	Vector3 m_xmf3Up = {};
+	Vector3 m_xmf3Look = {};
+	Vector3 m_xmf3LookAtWorld = {};
 
-	XMFLOAT3 m_xmf3Position = {};
-	XMFLOAT3 m_xmf3Rotation = {};
+	Vector3 m_xmf3Position = {};
+	Vector3 m_xmf3Rotation = {};
 
 	D3D12_VIEWPORT	m_d3dViewport = {};
 	D3D12_RECT		m_d3dScissorRect = {};

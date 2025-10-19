@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "Mesh.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,8 +30,10 @@ DiffusedMesh::DiffusedMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOP
 	m_ColorBuffer = RESOURCE->CreateVertexBuffer(meshLoadInfo.v4Colors, MESH_ELEMENT_TYPE_COLOR);
 }
 
-void DiffusedMesh::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount)
+void DiffusedMesh::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount) const
 {
+	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[2] = { m_PositionBuffer.VertexBufferView, m_ColorBuffer.VertexBufferView };
 	pd3dCommandList->IASetVertexBuffers(0, 2, vertexBufferViews);
 
@@ -46,19 +48,70 @@ void DiffusedMesh::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UIN
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TexturedMesh 
+// FullScreenMesh
+
+FullScreenMesh::FullScreenMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology)
+	: Mesh(meshLoadInfo, d3dTopology)
+{
+}
+
+void FullScreenMesh::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount) const
+{
+	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+	pd3dCommandList->IASetVertexBuffers(0, 1, &m_PositionBuffer.VertexBufferView);
+
+	if (m_IndexBuffers.size() != 0) {
+		pd3dCommandList->IASetIndexBuffer(&m_IndexBuffers[nSubSet].IndexBufferView);
+		pd3dCommandList->DrawIndexedInstanced(m_IndexBuffers[nSubSet].nIndices, nInstanceCount, 0, 0, 0);
+	}
+	else {
+		pd3dCommandList->DrawInstanced(m_PositionBuffer.nVertices, nInstanceCount, 0, 0);
+	}
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TexturedMesh
 
 TexturedMesh::TexturedMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology)
 	: Mesh(meshLoadInfo, d3dTopology)
 {
-	m_NormalBuffer = RESOURCE->CreateVertexBuffer(meshLoadInfo.v3Normals, MESH_ELEMENT_TYPE_COLOR);
-	m_TexCoordBuffer = RESOURCE->CreateVertexBuffer(meshLoadInfo.v2TexCoord0, MESH_ELEMENT_TYPE_COLOR);
+	m_TexCoordBuffer = RESOURCE->CreateVertexBuffer(meshLoadInfo.v2TexCoord0, MESH_ELEMENT_TYPE_TEXCOORD0);
 }
 
-void TexturedMesh::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount)
+void TexturedMesh::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount) const
 {
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[3] = { m_PositionBuffer.VertexBufferView, m_NormalBuffer.VertexBufferView, m_TexCoordBuffer.VertexBufferView };
+	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[2] = { m_PositionBuffer.VertexBufferView, m_TexCoordBuffer.VertexBufferView };
 	pd3dCommandList->IASetVertexBuffers(0, 2, vertexBufferViews);
+
+	if (m_IndexBuffers.size() != 0) {
+		pd3dCommandList->IASetIndexBuffer(&m_IndexBuffers[nSubSet].IndexBufferView);
+		pd3dCommandList->DrawIndexedInstanced(m_IndexBuffers[nSubSet].nIndices, nInstanceCount, 0, 0, 0);
+	}
+	else {
+		pd3dCommandList->DrawInstanced(m_PositionBuffer.nVertices, nInstanceCount, 0, 0);
+	}
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TexturedNormalMesh 
+
+TexturedNormalMesh::TexturedNormalMesh(const MESHLOADINFO& meshLoadInfo, D3D12_PRIMITIVE_TOPOLOGY d3dTopology)
+	: Mesh(meshLoadInfo, d3dTopology)
+{
+	m_NormalBuffer = RESOURCE->CreateVertexBuffer(meshLoadInfo.v3Normals, MESH_ELEMENT_TYPE_COLOR);
+	m_TexCoordBuffer = RESOURCE->CreateVertexBuffer(meshLoadInfo.v2TexCoord0, MESH_ELEMENT_TYPE_TEXCOORD0);
+}
+
+void TexturedNormalMesh::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nSubSet, UINT nInstanceCount) const
+{
+	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferViews[3] = { m_PositionBuffer.VertexBufferView, m_NormalBuffer.VertexBufferView, m_TexCoordBuffer.VertexBufferView };
+	pd3dCommandList->IASetVertexBuffers(0, 3, vertexBufferViews);
 
 	if (m_IndexBuffers.size() != 0) {
 		pd3dCommandList->IASetIndexBuffer(&m_IndexBuffers[nSubSet].IndexBufferView);

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "Scene.h"
 
 void Scene::InitializeObjects()
@@ -18,5 +18,15 @@ void Scene::UpdateObjects()
 
 	for (auto& obj : m_pGameObjects) {
 		obj->Update();
+	}
+}
+
+void Scene::RenderObjects(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList)
+{
+	if (m_pPlayer)
+		m_pPlayer->Render(pd3dCommandList);
+
+	for (auto& obj : m_pGameObjects) {
+		obj->Render(pd3dCommandList);
 	}
 }

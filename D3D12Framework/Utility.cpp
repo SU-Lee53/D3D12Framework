@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "Utility.h"
 
 void ShowErrorMessage(std::string_view file, int line, std::string_view message)

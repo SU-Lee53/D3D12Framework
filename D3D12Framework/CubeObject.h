@@ -1,24 +1,14 @@
 #pragma once
-#include "Script.h"
+#include "GameObject.h"
 
-class VerticalCubeObject : public Script {
+class CubeObject : public GameObject {
 public:
-	VerticalCubeObject(std::shared_ptr<GameObject> pOwner)
-		: Script{ pOwner }{}
+	CubeObject();
+	virtual ~CubeObject();
 
-	void Initialize() override;
-	void Update() override;
-	void OnCollision() override;
-};
-
-
-class HorizontalCubeObject : public Script {
 public:
-	HorizontalCubeObject(std::shared_ptr<GameObject> pOwner) 
-		: Script{ pOwner }{}
+	virtual void Initialize() override;
+	virtual void Update() override;
+	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList) override;
 
-	void Initialize() override;
-	void Update() override;
-	void OnCollision() override;
 };
-

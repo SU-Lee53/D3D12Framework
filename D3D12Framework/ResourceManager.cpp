@@ -1,6 +1,7 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "ResourceManager.h"
 #include "Texture.h"
+#include "TextureManager.h"
 
 ResourceManager::ResourceManager(ComPtr<ID3D12Device14> pDevice)
 	: m_pd3dDevice { pDevice }
@@ -8,7 +9,7 @@ ResourceManager::ResourceManager(ComPtr<ID3D12Device14> pDevice)
 	CreateCommandList();
 	CreateFence();
 
-	m_pConstantBufferPool = std::make_shared<ConstantBufferPool<MAX_CB_POOL_SIZE>>(pDevice, AlignConstantBuffersize(sizeof(XMFLOAT4)));
+	m_pConstantBufferPool = std::make_shared<ConstantBufferPool<MAX_CB_POOL_SIZE>>(pDevice, ConstantBufferSize<Matrix>::value);
 }
 
 ResourceManager::~ResourceManager()
@@ -71,6 +72,8 @@ IndexBuffer ResourceManager::CreateIndexBuffer(std::vector<UINT> Indices)
 		Buffer.StateTransition(m_pd3dCommandList, D3D12_RESOURCE_STATE_INDEX_BUFFER);
 
 		ExcuteCommandList();
+		Fence();
+		WaitForGPUComplete();
 	}
 
 	D3D12_INDEX_BUFFER_VIEW IndexBufferView;
@@ -81,18 +84,77 @@ IndexBuffer ResourceManager::CreateIndexBuffer(std::vector<UINT> Indices)
 	return { Buffer, nIndices, IndexBufferView };
 }
 
-std::shared_ptr<Texture> ResourceManager::CreateTextureFromFile(const std::wstring& wstrTexturePath)
+ComPtr<ID3D12Resource> ResourceManager::CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType, D3D12_RESOURCE_STATES d3dResourceStates)
 {
-	namespace fs = std::filesystem;
+	ComPtr<ID3D12Resource> pd3dBuffer = NULL;
 
-	std::string strTextureName = fs::path{ wstrTexturePath }.filename().string();
-	if (!m_pTexturePool.contains(strTextureName)) {
-		std::shared_ptr<Texture> pTexture = std::make_shared<Texture>();
-		pTexture->Initialize(m_pd3dDevice, m_pd3dCommandList, wstrTexturePath);
-		m_pTexturePool[strTextureName]
+	CD3DX12_HEAP_PROPERTIES d3dHeapPropertiesDesc = CD3DX12_HEAP_PROPERTIES(d3dHeapType);
+	CD3DX12_RESOURCE_DESC d3dResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(nBytes);
+
+	D3D12_RESOURCE_STATES d3dResourceInitialStates = D3D12_RESOURCE_STATE_COMMON;
+	if (d3dHeapType == D3D12_HEAP_TYPE_UPLOAD) d3dResourceInitialStates = D3D12_RESOURCE_STATE_GENERIC_READ;
+	else if (d3dHeapType == D3D12_HEAP_TYPE_READBACK) d3dResourceInitialStates = D3D12_RESOURCE_STATE_COPY_DEST;
+
+	HRESULT hResult = m_pd3dDevice->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(d3dHeapType),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(nBytes),
+		d3dResourceInitialStates,
+		NULL,
+		IID_PPV_ARGS(pd3dBuffer.GetAddressOf())
+	);
+
+	if (pData)
+	{
+		switch (d3dHeapType)
+		{
+		case D3D12_HEAP_TYPE_DEFAULT:
+		{
+			ResetCommandList();
+
+			ComPtr<ID3D12Resource> pUploadBuffer;
+
+			d3dHeapPropertiesDesc.Type = D3D12_HEAP_TYPE_UPLOAD;
+			m_pd3dDevice->CreateCommittedResource(
+				&d3dHeapPropertiesDesc,
+				D3D12_HEAP_FLAG_NONE,
+				&d3dResourceDesc,
+				D3D12_RESOURCE_STATE_GENERIC_READ,
+				NULL,
+				IID_PPV_ARGS(pUploadBuffer.GetAddressOf())
+			);
+
+			D3D12_RANGE d3dReadRange = { 0, 0 };
+			UINT8* pBufferDataBegin = NULL;
+			pUploadBuffer->Map(0, &d3dReadRange, (void**)&pBufferDataBegin);
+			memcpy(pBufferDataBegin, pData, nBytes);
+			pUploadBuffer->Unmap(0, NULL);
+
+			m_pd3dCommandList->CopyResource(pd3dBuffer.Get(), pUploadBuffer.Get());
+
+			m_pd3dCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(pd3dBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, d3dResourceStates));
+
+			ExcuteCommandList();
+			Fence();
+			WaitForGPUComplete();
+			
+			break;
+		}
+		case D3D12_HEAP_TYPE_UPLOAD:
+		{
+			D3D12_RANGE d3dReadRange = { 0, 0 };
+			UINT8* pBufferDataBegin = NULL;
+			pd3dBuffer->Map(0, &d3dReadRange, (void**)&pBufferDataBegin);
+			memcpy(pBufferDataBegin, pData, nBytes);
+			pd3dBuffer->Unmap(0, NULL);
+			break;
+		}
+		case D3D12_HEAP_TYPE_READBACK:
+			break;
+		}
 	}
 
-	return m_pTexturePool[strTextureName];
+	return pd3dBuffer;
 }
 
 #pragma region D3D
@@ -154,7 +216,12 @@ void ResourceManager::CreateFence()
 
 void ResourceManager::ExcuteCommandList()
 {
-	m_pd3dCommandList->Close();
+	HRESULT hr = m_pd3dCommandList->Close();
+	if (FAILED(hr)) {
+		SHOW_ERROR("Failed to close CommandList");
+		__debugbreak();
+	}
+
 
 	ID3D12CommandList* ppCommandLists[] = { m_pd3dCommandList.Get() };
 	m_pd3dCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
@@ -162,13 +229,20 @@ void ResourceManager::ExcuteCommandList()
 	WaitForGPUComplete();
 }
 
+void ResourceManager::Fence()
+{
+	m_nFenceValue++;
+	m_pd3dCommandQueue->Signal(m_pd3dFence.Get(), m_nFenceValue);
+}
+
 void ResourceManager::WaitForGPUComplete()
 {
-	UINT64 nFenceValue = ++m_nFenceValue;
-	HRESULT hResult = m_pd3dCommandQueue->Signal(m_pd3dFence.Get(), nFenceValue);
-	if (m_pd3dFence->GetCompletedValue() < nFenceValue)
+
+	const UINT64 expectedFenceValue = m_nFenceValue;
+
+	if (m_pd3dFence->GetCompletedValue() < expectedFenceValue)
 	{
-		hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
+		m_pd3dFence->SetEventOnCompletion(expectedFenceValue, m_hFenceEvent);
 		::WaitForSingleObject(m_hFenceEvent, INFINITE);
 	}
 }

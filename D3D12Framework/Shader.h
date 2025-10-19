@@ -6,16 +6,13 @@
 
 class Shader {
 public:
-	/// <summary>
-	/// Shader 를 초기화
-	/// Derived Class 에서 반드시 Override
-	/// </summary>
-	/// <param name="pd3dDevice"></param>
-	/// <param name="pd3dRootSignature">
-	/// nullptr 로 유지할 경우 RenderManager 의 Global Root Signature 를 사용하도록 함
-	/// </param>
 	virtual void Initialize(ComPtr<ID3D12Device14> pd3dDevice, 
 		ComPtr<ID3D12RootSignature> pd3dRootSignature = nullptr) = 0;
+
+	const std::vector<ComPtr<ID3D12PipelineState>>&
+		GetPipelineStates() const { return m_pd3dPipelineStates; }
+
+	virtual void SetRootSignature(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList) {}
 
 protected:
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() { return D3D12_INPUT_LAYOUT_DESC{}; }
@@ -28,7 +25,6 @@ protected:
 
 	D3D12_SHADER_BYTECODE CompileShaderFromFile(const std::wstring& wstrFileName, const std::string& strShaderName, const std::string& strShaderProfile, ID3DBlob** ppd3dShaderBlob);
 	D3D12_SHADER_BYTECODE ReadCompiledShaderFromFile(const std::wstring& wstrFileName, ID3DBlob** ppd3dShaderBlob);
-
 
 protected:
 	ComPtr<ID3DBlob> m_pd3dVertexShaderBlob = nullptr;
@@ -59,4 +55,46 @@ protected:
 	// m_PipelineStates[0] -> No Instancing
 	// m_PipelineStates[1] -> Inscancing
 
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TexturedShader
+
+class TexturedShader : public Shader {
+public:
+	virtual void Initialize(ComPtr<ID3D12Device14> pd3dDevice, 
+		ComPtr<ID3D12RootSignature> pd3dRootSignature = nullptr) override;
+
+protected:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+
+	D3D12_SHADER_BYTECODE CreateInstancedVertexShader();
+
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// FullScreenShader
+
+class FullScreenShader : public Shader {
+public:
+	virtual void Initialize(ComPtr<ID3D12Device14> pd3dDevice,
+		ComPtr<ID3D12RootSignature> pd3dRootSignature = nullptr) override;
+
+protected:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout() override;
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader() override;
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader() override;
+
+
+	void CreateRootSignature(ComPtr<ID3D12Device14> pd3dDevice);
+	virtual void SetRootSignature(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList) override {
+		pd3dCommandList->SetGraphicsRootSignature(m_pd3dFullScreenRootSignature.Get());
+	}
+
+protected:
+	ComPtr<ID3D12RootSignature> m_pd3dFullScreenRootSignature;
 };

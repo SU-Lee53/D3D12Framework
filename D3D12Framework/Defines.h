@@ -1,9 +1,9 @@
 #pragma once
 
 
-// =====
-// enums
-// =====
+//////////////////////////////////////////////////////////////////////////////////
+// Enums
+
 enum SHADER_RESOURCE_TYPE : UINT8 {
 	SHADER_RESOURCE_TYPE_CONSTANT_BUFFER = 0,
 	SHADER_RESOURCE_TYPE_TEXTURE,
@@ -25,11 +25,8 @@ enum ROOT_PARAMETER_TYPE : UINT8 {
 };
 
 enum COMPONENT_TYPE : UINT8 {
-	//COMPONENT_TYPE_TRANSFORM = 0,
-	//COMPONENT_TYPE_MESH,				// undefined
-	//COMPONENT_TYPE_MATERIAL,			// undefined
+	//COMPONENT_TYPE_MOVEMENT,			// undefined
 	COMPONENT_TYPE_MESH_RENDERER,
-	COMPONENT_TYPE_MOVEMENT,			// undefined
 	//COMPONENT_TYPE_ANIMATION,			// undefined
 	//COMPONENT_TYPE_BEHAVIOR_TREE,		// undefined
 	//COMPONENT_TYPE_PHYSICS,				// undefined
@@ -56,9 +53,25 @@ enum MESH_ELEMENT_TYPE : UINT {
 	MESH_ELEMENT_TYPE_END = 0x0400,
 };
 
-// =================
+//////////////////////////////////////////////////////////////////////////////////
+// Structs
+
+struct MaterialColors {
+	XMFLOAT4		xmf4Ambient;
+	XMFLOAT4		xmf4Diffuse;
+	XMFLOAT4		xmf4Specular; //(r,g,b,a=power)
+	XMFLOAT4		xmf4Emissive;
+
+	float			fGlossiness = 0.0f;
+	float			fSmoothness = 0.0f;
+	float			fSpecularHighlight = 0.0f;
+	float			fMetallic = 0.0f;
+	float			fGlossyReflection = 0.0f;
+};
+
+//////////////////////////////////////////////////////////////////////////////////
 // Default Constants
-// =================
+
 constexpr D3D12_ROOT_SIGNATURE_FLAGS ROOT_SIGNATURE_FLAG_DEFAULT = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
 D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
 D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |

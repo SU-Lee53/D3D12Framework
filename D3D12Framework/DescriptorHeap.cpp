@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "DescriptorHeap.h"
 
 DescriptorHeap::DescriptorHeap(ComPtr<ID3D12Device14> pd3dDevice, D3D12_DESCRIPTOR_HEAP_DESC d3dHeapDesc)
@@ -30,5 +30,21 @@ void DescriptorHeap::Initialize(ComPtr<ID3D12Device14> pd3dDevice, D3D12_DESCRIP
 	m_DescriptorHandleFromStart.cpuHandle = m_pd3dDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	if (d3dHeapDesc.Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE) {
 		m_DescriptorHandleFromStart.gpuHandle = m_pd3dDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	}
+}
+
+DescriptorHandle DescriptorHeap::GetDescriptorHandleFromHeapStart()
+{
+	if (m_d3dHeapFlags == D3D12_DESCRIPTOR_HEAP_FLAG_NONE) {
+		return {
+			CD3DX12_CPU_DESCRIPTOR_HANDLE(m_pd3dDescriptorHeap->GetCPUDescriptorHandleForHeapStart()),
+			CD3DX12_GPU_DESCRIPTOR_HANDLE()
+		};
+	}
+	else {
+		return {
+			CD3DX12_CPU_DESCRIPTOR_HANDLE(m_pd3dDescriptorHeap->GetCPUDescriptorHandleForHeapStart()),
+			CD3DX12_GPU_DESCRIPTOR_HANDLE(m_pd3dDescriptorHeap->GetGPUDescriptorHandleForHeapStart())
+		};
 	}
 }

@@ -4,11 +4,7 @@
 
 class Scene {
 public:
-	Scene() {}
-	virtual ~Scene() {}
-
-public:
-	virtual void BuilObjects() = 0;
+	virtual void BuildObjects() = 0;
 
 public:
 	void AddObject(std::shared_ptr<GameObject> pObj) {
@@ -22,8 +18,9 @@ public:
 	}
 
 public:
+	virtual void ProcessInput() = 0;
 	virtual void Update() = 0;
-	virtual void Render() = 0;
+	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommansList) = 0;
 
 public:
 	std::shared_ptr<GameObject> GetPlayer() const { return m_pPlayer; }
@@ -31,9 +28,9 @@ public:
 	std::vector<std::shared_ptr<GameObject>>& GetObjectsInScene() { return m_pGameObjects; }
 
 protected:
-	virtual void ProcessInput() = 0;
 	void InitializeObjects();
 	void UpdateObjects();
+	void RenderObjects(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList);
 
 protected:
 	std::vector<std::shared_ptr<GameObject>> m_pGameObjects = {};

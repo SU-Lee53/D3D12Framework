@@ -1,5 +1,7 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "MeshRenderer.h"
+#include "Mesh.h"
+#include "Material.h"
 
 MeshRenderer::MeshRenderer(std::shared_ptr<GameObject> pOwner)
 	: Component(pOwner)
@@ -41,11 +43,7 @@ MeshRenderer& MeshRenderer::operator=(MeshRenderer&& other)
 
 	m_wpOwner = std::move(other.m_wpOwner);
 
-	 return *this;
-}
-
-void MeshRenderer::Render(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dGraphicsCommandList)
-{
+	return *this;
 }
 
 bool MeshRenderer::operator==(const MeshRenderer& rhs) const
@@ -62,6 +60,56 @@ void MeshRenderer::Update()
 #ifdef WITH_FRUSTUM_CULLING
 	
 #else
-
+	if (m_bAddToRenderManager) {
+		RENDER->Add<MeshRenderer>(shared_from_this());
+	}
 #endif
+}
+
+std::shared_ptr<MeshRenderer> MeshRenderer::FDiffused(std::shared_ptr<GameObject> pOwner, std::shared_ptr<Mesh> pMesh, std::vector<std::shared_ptr<Material>> pMaterials)
+{
+	std::shared_ptr<MeshRenderer> pMeshRenderer = std::make_shared<MeshRenderer>(pOwner);
+	pMeshRenderer->m_eObjectRenderType = OBJECT_RENDER_FORWARD;
+	pMeshRenderer->m_pMesh = pMesh;
+	pMeshRenderer->m_pMaterials = pMaterials;
+
+	return pMeshRenderer;
+}
+
+std::shared_ptr<MeshRenderer> MeshRenderer::FDiffused(std::shared_ptr<GameObject> pOwner, const MESHLOADINFO& meshLoadInfo, const std::vector<MATERIALLOADINFO>& materialLoadInfo)
+{
+	std::shared_ptr<MeshRenderer> pMeshRenderer = std::make_shared<MeshRenderer>(pOwner);
+	pMeshRenderer->m_eObjectRenderType = OBJECT_RENDER_FORWARD;
+	pMeshRenderer->m_pMesh = std::make_shared<DiffusedMesh>(meshLoadInfo);
+
+	for (const auto& materialInfo : materialLoadInfo) {
+		std::shared_ptr<DiffusedMaterial> pMaterial = std::make_shared<DiffusedMaterial>(materialInfo);
+		pMeshRenderer->m_pMaterials.push_back(pMaterial);
+	}
+
+	for (auto& mat : pMeshRenderer->m_pMaterials) {
+		mat->SetShader(SHADER->Get<DiffusedShader>());
+	}
+
+	return pMeshRenderer;
+}
+
+std::shared_ptr<MeshRenderer> MeshRenderer::FFullScreenTextured(std::shared_ptr<GameObject> pOwner, const MESHLOADINFO& meshLoadInfo, const std::vector<MATERIALLOADINFO>& materialLoadInfo)
+{
+	std::shared_ptr<MeshRenderer> pMeshRenderer = std::make_shared<MeshRenderer>(pOwner);
+	pMeshRenderer->m_eObjectRenderType = OBJECT_RENDER_FORWARD;
+	pMeshRenderer->m_pMesh = std::make_shared<FullScreenMesh>(meshLoadInfo);
+
+	for (const auto& materialInfo : materialLoadInfo) {
+		std::shared_ptr<TexturedMaterial> pMaterial = std::make_shared<TexturedMaterial>(materialInfo);
+		pMeshRenderer->m_pMaterials.push_back(pMaterial);
+	}
+
+	for (auto& mat : pMeshRenderer->m_pMaterials) {
+		mat->SetShader(SHADER->Get<FullScreenShader>());
+	}
+
+	pMeshRenderer->m_bAddToRenderManager = false;
+
+	return pMeshRenderer;
 }

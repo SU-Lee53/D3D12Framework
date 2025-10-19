@@ -20,7 +20,7 @@ struct ShaderResource {
 	}
 
 	void StateTransition(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, D3D12_RESOURCE_STATES afterstate) {
-		pd3dCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(pResource.Get(), currentState, afterstate));
+		pd3dCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(pResource.Get(), currentState, afterstate, D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES));
 		currentState = afterstate;
 	}
 
@@ -28,5 +28,22 @@ struct ShaderResource {
 		return pResource->GetGPUVirtualAddress();
 	}
 
+};
+
+// ========================
+// Input Assembly Resources
+// ========================
+
+struct VertexBuffer {
+	ShaderResource VertexBuffer;
+	UINT nVertices;
+	D3D12_VERTEX_BUFFER_VIEW VertexBufferView;
+	UINT nType;
+};
+
+struct IndexBuffer {
+	ShaderResource IndexBuffer;
+	UINT nIndices;
+	D3D12_INDEX_BUFFER_VIEW IndexBufferView;
 };
 

@@ -1,23 +1,6 @@
 #pragma once
 #include "ConstantBufferPool.h"
 
-// ========================
-// Input Assembly Resources
-// ========================
-
-struct VertexBuffer {
-	ShaderResource VertexBuffer;
-	UINT nVertices;
-	D3D12_VERTEX_BUFFER_VIEW VertexBufferView;
-	MESH_ELEMENT_TYPE nType;
-};
-
-struct IndexBuffer {
-	ShaderResource IndexBuffer;
-	UINT nIndices;
-	D3D12_INDEX_BUFFER_VIEW IndexBufferView;
-};
-
 // ===========================================================================================
 // ResourceManager
 // - Shader 변수들을 생성 및 관리
@@ -26,6 +9,10 @@ struct IndexBuffer {
 //		- StructuredBuffer	
 //		- Texture
 // - 직접 생성보다 Manager 를 거쳐 생성할 것 (추후 ResourcePool 을 이용하여 관리할 예정이므로)
+// 
+//  10.18
+//  - ShaderManager, TextureManager 별도 구현
+//  - Device와 CommandList 는 ResourceManager 의 것을 같이쓴다
 // ===========================================================================================
 
 constexpr static size_t MAX_CB_POOL_SIZE = 1024;
@@ -45,12 +32,12 @@ public:
 	VertexBuffer CreateVertexBuffer(std::vector<T> vertices, UINT nType);
 	IndexBuffer CreateIndexBuffer(std::vector<UINT> Indices);
 
-	std::shared_ptr<Texture> CreateTextureFromFile(const std::wstring& wstrTexturePath);
-	std::shared_ptr<Texture> CreateBlankTexture() = delete;	// 아직 미구현
+	ComPtr<ID3D12Resource> CreateBufferResource(void* pData, UINT nBytes, D3D12_HEAP_TYPE d3dHeapType, D3D12_RESOURCE_STATES d3dResourceStates);
 
 public:
+	template<typename T>
 	ConstantBuffer& AllocCBuffer() {
-		return m_pConstantBufferPool->Allocate();
+		return m_pConstantBufferPool->Allocate<T>();
 	}
 
 	void ResetCBufferBool() {
@@ -60,6 +47,7 @@ public:
 private:
 	void CreateCommandList();
 	void CreateFence();
+	void Fence();
 	void WaitForGPUComplete();
 
 	void ExcuteCommandList();
@@ -77,8 +65,6 @@ private:
 private:
 	std::shared_ptr<ConstantBufferPool<MAX_CB_POOL_SIZE>> m_pConstantBufferPool = nullptr;
 
-	// Texture Pool
-	std::unordered_map<std::string, std::shared_ptr<Texture>> m_pTexturePool;
 };
 
 template<typename T>
@@ -91,11 +77,13 @@ inline VertexBuffer ResourceManager::CreateVertexBuffer(std::vector<T> vertices,
 	UINT nVertices = vertices.size();
 	UINT VertexBufferSize = sizeof(T) * nVertices;
 
+	CD3DX12_RESOURCE_DESC resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(VertexBufferSize);
+
 	hr = Buffer.Create(
 		m_pd3dDevice,
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(VertexBufferSize),
+		&resourceDesc,
 		D3D12_RESOURCE_STATE_COMMON,
 		nullptr
 	);
@@ -138,6 +126,8 @@ inline VertexBuffer ResourceManager::CreateVertexBuffer(std::vector<T> vertices,
 		Buffer.StateTransition(m_pd3dCommandList, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
 		ExcuteCommandList();
+		Fence();
+		WaitForGPUComplete();
 	}
 
 	D3D12_VERTEX_BUFFER_VIEW VertexBufferView;
@@ -145,5 +135,12 @@ inline VertexBuffer ResourceManager::CreateVertexBuffer(std::vector<T> vertices,
 	VertexBufferView.StrideInBytes = sizeof(T);
 	VertexBufferView.SizeInBytes = VertexBufferSize;
 
-	return { Buffer, nVertices, VertexBufferView, nType };
+	VertexBuffer ret;
+	ret.VertexBuffer = Buffer;
+	ret.nVertices = nVertices;
+	ret.VertexBufferView = VertexBufferView;
+	ret.nType = nType;
+
+
+	return ret;
 }

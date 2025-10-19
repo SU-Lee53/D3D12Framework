@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "Transform.h"
 #include "GameObject.h"
 
@@ -13,10 +13,10 @@ void Transform::Update(std::shared_ptr<GameObject> pParent)
 	m_mtxWorld = (pParent) ? ((m_mtxTransform * m_mtxFrameRelative) * pParent->GetTransform().m_mtxWorld) : (m_mtxTransform * m_mtxFrameRelative);
 }
 
-void Transform::SetLocalMatrix(const Matrix& xmf4x4Local)
-{
-	m_mtxTransform = xmf4x4Local;
-}
+//void Transform::SetLocalMatrix(const Matrix& xmf4x4Local)
+//{
+//	m_mtxTransform = xmf4x4Local;
+//}
 
 // =========
 // Translate
@@ -72,7 +72,7 @@ Vector3 Transform::GetUp() const
 
 Vector3 Transform::GetLook() const
 {
-	return m_mtxWorld.Forward();
+	return m_mtxWorld.ForwardPass();
 }
 
 Matrix Transform::GetWorldMatrix() const

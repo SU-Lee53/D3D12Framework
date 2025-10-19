@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "D3DCore.h"
 
 UINT D3DCore::g_nCBVSRVDescriptorIncrementSize = 0;

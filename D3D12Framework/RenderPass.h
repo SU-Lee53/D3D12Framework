@@ -1,32 +1,35 @@
 #pragma once
-#include "Pipeline.h"
 #include "Scene.h"
+#include "StructuredBuffer.h"
+
+struct InstancePair;
+struct RenderTargetTexture;
+
+struct PER_OBJECT_CB_DATA {
+	MaterialColors materialColors;
+	int nInstanceBase;
+};
 
 class RenderPass {
 public:
-	RenderPass(ComPtr<ID3D12Device14> pd3dDevice) {}
+	RenderPass() {}
 	virtual ~RenderPass() {}
 
-	virtual void Run(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::shared_ptr<Scene> pScene) = 0;
+	virtual void Run(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::span<InstancePair> instances, DescriptorHandle& descHandleFromPassStart) = 0;
 
 protected:
-
-
-protected:
-	std::shared_ptr<Pipeline> m_pPipeline = nullptr;
-	std::vector<ComPtr<ID3D12Resource>> m_pRTVs;			// for MRT
+	std::vector<RenderTargetTexture> m_pRTVs;			// for MRT
 
 };
 
-class DiffusedPass : public RenderPass {
+class ForwardPass : public RenderPass {
 public:
-	DiffusedPass(ComPtr<ID3D12Device14> pd3dDevice) : RenderPass{ pd3dDevice } {
-		m_pPipeline = std::make_shared<DiffusedPipeline>(pd3dDevice);
+	ForwardPass(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommmandList);
+	virtual ~ForwardPass() {}
 
-	}
+	virtual void Run(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::span<InstancePair> instances, DescriptorHandle& descHandleFromPassStart) override;
 
-	virtual ~DiffusedPass() {}
-
-	virtual void Run(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::shared_ptr<Scene> pScene) override;
+protected:
+	StructuredBuffer m_InstanceSBuffer;
 
 };

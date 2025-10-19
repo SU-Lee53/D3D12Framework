@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "Material.h"
 
 Material::Material(const MATERIALLOADINFO& materialLoadInfo)
@@ -46,8 +46,23 @@ Material::Material(const MATERIALLOADINFO& materialLoadInfo)
 
 }
 
+Material::~Material()
+{
+}
+
+void Material::SetShader(std::shared_ptr<Shader> pShader)
+{
+	m_pShader = pShader;
+}
+
+std::shared_ptr<Texture> Material::GetTexture(int nIndex)
+{
+	assert(nIndex < m_pTextures.size());
+	return m_pTextures[nIndex];
+}
+
 //////////////////////////////////////////////////////////////////////////////////
-//
+// DiffusedMaterial
 
 DiffusedMaterial::DiffusedMaterial(const MATERIALLOADINFO& materialLoadInfo)
 	:Material(materialLoadInfo)
@@ -60,16 +75,23 @@ DiffusedMaterial::~DiffusedMaterial()
 
 void DiffusedMaterial::UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind)
 {
-	ConstantBuffer& cbuffer = RESOURCE->AllocCBuffer();
+	ConstantBuffer& cbuffer = RESOURCE->AllocCBuffer<MaterialColors>();
 	cbuffer.WriteData(m_MaterialColors, 0);
 
 }
 
+void DiffusedMaterial::UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& d3dCPUHandle)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+// TexturedMaterial
+
 TexturedMaterial::TexturedMaterial(const MATERIALLOADINFO& materialLoadInfo)
 	:Material(materialLoadInfo)
 {
-	m_pDiffusedTexutre = RESOURCE->CreateTextureFromFile(::ToWSting(materialLoadInfo.m_strAlbedoMapName));
-	m_pNormalTexture = RESOURCE->CreateTextureFromFile(::ToWSting(materialLoadInfo.m_strNormalMapName));
+	m_pTextures.resize(1);
+	m_pTextures[0] = TEXTURE->CreateTextureFromFile(::StringToWString(materialLoadInfo.m_strAlbedoMapName));	// Diffused
 }
 
 TexturedMaterial::~TexturedMaterial()
@@ -78,13 +100,47 @@ TexturedMaterial::~TexturedMaterial()
 
 void TexturedMaterial::UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind)
 {
+}
+
+void TexturedMaterial::UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& d3dCPUHandle)
+{
+	pd3dDevice->CopyDescriptorsSimple(1, d3dCPUHandle, m_pTextures[0]->GetDescriptorHeap().GetDescriptorHandleFromHeapStart().cpuHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	d3dCPUHandle.ptr += D3DCore::g_nCBVSRVDescriptorIncrementSize;
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+// TexturedNormalMaterial
+
+TexturedNormalMaterial::TexturedNormalMaterial(const MATERIALLOADINFO& materialLoadInfo)
+	:Material(materialLoadInfo)
+{
+	m_pTextures.resize(2);
+	m_pTextures[0] = TEXTURE->CreateTextureFromFile(::StringToWString(materialLoadInfo.m_strAlbedoMapName));	// Diffused
+	m_pTextures[1] = TEXTURE->CreateTextureFromFile(::StringToWString(materialLoadInfo.m_strNormalMapName));	// Normal
+}
+
+TexturedNormalMaterial::~TexturedNormalMaterial()
+{
+}
+
+void TexturedNormalMaterial::UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind)
+{
 	// 일단 dataForBind 에 Root Parameter Index 가 왔다고 가정
 	// 나중에 변경 필요하면 바꿀것
 
 	int nRootParameterIndex1 = *((int*)dataForBind);
 	int nRootParameterIndex2 = *((int*)dataForBind + 1);
 
-	pd3dCommandList->SetGraphicsRootShaderResourceView(nRootParameterIndex1, m_pDiffusedTexture->GetTexture()->GetGPUVirtualAddress());
-	pd3dCommandList->SetGraphicsRootShaderResourceView(nRootParameterIndex2, m_pNormalTexture->GetTexture()->GetGPUVirtualAddress());
+	pd3dCommandList->SetGraphicsRootShaderResourceView(nRootParameterIndex1, m_pTextures[0]->GetTexture().GetGPUAddress());
+	pd3dCommandList->SetGraphicsRootShaderResourceView(nRootParameterIndex2, m_pTextures[1]->GetTexture().GetGPUAddress());
 
+}
+
+void TexturedNormalMaterial::UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& d3dCPUHandle)
+{
+	pd3dDevice->CopyDescriptorsSimple(1, d3dCPUHandle, m_pTextures[0]->GetDescriptorHeap().GetDescriptorHandleFromHeapStart().cpuHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	d3dCPUHandle.ptr += D3DCore::g_nCBVSRVDescriptorIncrementSize;
+
+	pd3dDevice->CopyDescriptorsSimple(1, d3dCPUHandle , m_pTextures[1]->GetDescriptorHeap().GetDescriptorHandleFromHeapStart().cpuHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }

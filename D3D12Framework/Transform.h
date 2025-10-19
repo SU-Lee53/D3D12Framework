@@ -1,5 +1,6 @@
 #pragma once
-#include "Component.h"
+
+class GameObject;
 
 class Transform {
 public:
@@ -8,7 +9,7 @@ public:
 	void Update(std::shared_ptr<GameObject> pParent = nullptr);
 
 public:
-	void SetLocalMatrix(const Matrix& xmf4x4Local);
+	void SetLocalMatrix(const Matrix& xmf4x4Local) = delete;
 
 public:
 	// 테스트 필요. 일단 제거

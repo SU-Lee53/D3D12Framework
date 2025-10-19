@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 
 #include "targetver.h"
 #define WIN32_LEAN_AND_MEAN             // 거의 사용되지 않는 내용을 Windows 헤더에서 제외합니다.
@@ -28,6 +29,7 @@
 #include <concepts>
 #include <utility>
 #include <filesystem>
+#include <typeindex>
 
 
 // Direct3D related headers
@@ -62,9 +64,6 @@ using namespace DirectX::PackedVector;
 
 using namespace Microsoft::WRL;
 
-
-extern inline size_t AlignConstantBuffersize(size_t size);
-
 // Import libraries
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -76,16 +75,8 @@ extern inline size_t AlignConstantBuffersize(size_t size);
 #include "Concepts.h"
 #include "Utility.h"
 #include "ShaderResource.h"
-#include "InputLayout.h"
-
-// Managers
-#include "ResourceManager.h"
-#include "RenderManager.h"
 
 // Game Headers
 #include "WinCore.h"
 #include "D3DCore.h"
 #include "GameFramework.h"
-
-#include "ConstantBuffer.h"
-#include "DescriptorHeap.h"

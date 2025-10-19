@@ -1,35 +1,60 @@
-#include "stdafx.h"
+#include "pch.h"
 #include "RenderPass.h"
 #include "Mesh.h"
 #include "Transform.h"
+#include "RenderManager.h"	// for InstancePair
 
-void DiffusedPass::Run(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::shared_ptr<Scene> pScene)
+ForwardPass::ForwardPass(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommmandList)
 {
-	pd3dCommandList->SetPipelineState(m_pPipeline->Get());
-	pd3dCommandList->SetGraphicsRootSignature(m_pPipeline->GetRootSignature());
+	m_InstanceSBuffer.Create(pd3dDevice, pd3dCommmandList, 100000, sizeof(Matrix), true);
+}
 
-	ConstantBuffer& cbCamera = RESOURCE->AllocCBuffer();
-	auto pCamera = pScene->GetCamera();
-
-	XMFLOAT4X4 xmf4x4CameraData;
-	XMStoreFloat4x4(&xmf4x4CameraData, XMMatrixTranspose(XMLoadFloat4x4(&pCamera->GetViewProjectMatrix())));
-	cbCamera.WriteData(xmf4x4CameraData);
-
-	m_pPipeline->BindShaderVariables(pd3dCommandList, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, ROOT_PARAMETER_TYPE_ROOT_DESCRIPTOR, "CAMERA", cbCamera);
-	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
-
-	for (auto& obj : pScene->GetObjectsInScene()) {
-		auto pTransform = obj->GetComponent<Transform>();
-		ConstantBuffer& cbTransform = RESOURCE->AllocCBuffer();
-
-		XMFLOAT4X4 xmf4x4TransformData;
-		XMStoreFloat4x4(&xmf4x4TransformData, XMMatrixTranspose(XMMatrixMultiply(XMLoadFloat4x4(&pTransform->GetLocalMatrix()), XMLoadFloat4x4(&pTransform->GetWorldMatrix()))));
-		cbTransform.WriteData(xmf4x4TransformData);
-
-		m_pPipeline->BindShaderVariables<ConstantBuffer>(pd3dCommandList, SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, ROOT_PARAMETER_TYPE_ROOT_DESCRIPTOR, "TRANSFORM", cbTransform);
-
-		auto pMesh = obj->GetComponent<Mesh>();
-		pMesh->Render(pd3dCommandList);
+void ForwardPass::Run(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, std::span<InstancePair> instances, DescriptorHandle& descHandleFromPassStart)
+{
+	UINT uiSBufferOffset = 0;
+	for (const auto& [k, v] : instances) {
+		m_InstanceSBuffer.UpdateData(v, uiSBufferOffset);
+		uiSBufferOffset += v.size();
 	}
 
+#ifdef WITH_UPLOAD_BUFFER
+	m_InstanceDataSBuffer.UpdateResources(m_pd3dDevice, pd3dCommandList);
+
+#endif
+
+	pd3dDevice->CopyDescriptorsSimple(1, descHandleFromPassStart.cpuHandle,
+		m_InstanceSBuffer.GetCPUDescriptorHandle(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	descHandleFromPassStart.cpuHandle.Offset(1, D3DCore::g_nCBVSRVDescriptorIncrementSize);
+
+	pd3dCommandList->SetGraphicsRootDescriptorTable(2, descHandleFromPassStart.gpuHandle);
+	descHandleFromPassStart.gpuHandle.Offset(1, D3DCore::g_nCBVSRVDescriptorIncrementSize);
+
+	int nInstanceBase = 0;
+	int nInstanceCount = 0;
+	for (const auto& [k, v] : instances) {
+		nInstanceCount = v.size();
+		const auto& materials = k.GetMaterials();
+		const auto& mesh = k.GetMesh();
+
+		for (int i = 0; i < materials.size(); ++i) {
+			// Per Object CB
+			PER_OBJECT_CB_DATA cbData = { materials[i]->GetMaterialColors(), nInstanceBase };
+			ConstantBuffer cbuffer = RESOURCE->AllocCBuffer<PER_OBJECT_CB_DATA>();
+			cbuffer.WriteData(&cbData);
+
+			pd3dDevice->CopyDescriptorsSimple(1, descHandleFromPassStart.cpuHandle, cbuffer.CBVHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+			descHandleFromPassStart.cpuHandle.Offset(1, D3DCore::g_nCBVSRVDescriptorIncrementSize);
+
+			// Texture (있다면)
+			materials[i]->UpdateShaderVariables(pd3dDevice, descHandleFromPassStart.cpuHandle);	// Texture 가 있다면 Descriptor 가 복사될 것이고 아니면 안될것
+			pd3dCommandList->SetGraphicsRootDescriptorTable(2, descHandleFromPassStart.gpuHandle);
+
+			const auto& pipelineStates = materials[i]->GetShader()->GetPipelineStates();
+			pd3dCommandList->SetPipelineState(pipelineStates[1].Get());
+
+			mesh->Render(pd3dCommandList, i, nInstanceCount);
+		}
+
+		nInstanceBase += nInstanceCount;
+	}
 }
