@@ -37,11 +37,11 @@ public:
 public:
 	template<typename T>
 	ConstantBuffer& AllocCBuffer() {
-		return m_pConstantBufferPool->Allocate<T>();
+		return m_ConstantBufferPool.Allocate<T>();
 	}
 
 	void ResetCBufferBool() {
-		m_pConstantBufferPool->Reset();
+		m_ConstantBufferPool.Reset();
 	}
 
 private:
@@ -63,7 +63,7 @@ private:
 	UINT64					m_nFenceValue = 0;
 
 private:
-	std::shared_ptr<ConstantBufferPool<MAX_CB_POOL_SIZE>> m_pConstantBufferPool = nullptr;
+	ConstantBufferPool		m_ConstantBufferPool;
 
 };
 

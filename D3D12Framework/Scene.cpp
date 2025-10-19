@@ -30,3 +30,17 @@ void Scene::RenderObjects(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList)
 		obj->Render(pd3dCommandList);
 	}
 }
+
+CB_LIGHT_DATA Scene::MakeLightData()
+{
+	CB_LIGHT_DATA lightData;
+
+	for (int i = 0; i < m_pLights.size(); ++i) {
+		lightData.gLights[i] = m_pLights[i]->MakeLightData();
+	}
+
+	lightData.gcGlobalAmbientLight = Vector4(1.f, 1.f, 1.f, 1.f);
+	lightData.gnLights = 0;
+
+	return lightData;
+}

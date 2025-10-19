@@ -7,8 +7,8 @@ struct ConstantBuffer
 	UINT8* pMappedPtr;
 
 	template<typename T>
-	void WriteData(const T& data, UINT offset = 0) {
-		::memcpy(pMappedPtr + (offset * sizeof(T)), &data, sizeof(T));
+	void WriteData(const T* pData) {
+		::memcpy(pMappedPtr, pData, sizeof(T));
 	}
 
 	void Bind(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, UINT nRootParameterIndex) {

@@ -7,6 +7,8 @@
 #include "ShaderManager.h"
 #include "TextureManager.h"
 #include "SceneManager.h"
+#include "InputManager.h"
+#include "GameTimer.h"
 
 class GameFramework {
 public:
@@ -26,6 +28,8 @@ public:
 	static std::unique_ptr<ShaderManager>		g_pShaderManager;
 	static std::unique_ptr<TextureManager>		g_pTextureManager;
 	static std::unique_ptr<SceneManager>		g_pSceneManager;
+	static std::unique_ptr<InputManager>		g_pInputManager;
+	static std::unique_ptr<GameTimer>			g_pGameTimer;
 
 };
 
@@ -35,6 +39,9 @@ public:
 #define SHADER			GameFramework::g_pShaderManager
 #define TEXTURE			GameFramework::g_pTextureManager
 #define SCENE			GameFramework::g_pSceneManager
+#define INPUT			GameFramework::g_pInputManager
+#define TIMER			GameFramework::g_pInputManager
 
 
 #define CUR_SCENE		GameFramework::g_pSceneManager->GetCurrentScene()
+#define DT				GameFramework::g_pGameTimer->GetTimeElapsed()

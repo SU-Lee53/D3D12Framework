@@ -75,12 +75,9 @@ DiffusedMaterial::~DiffusedMaterial()
 
 void DiffusedMaterial::UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind)
 {
-	ConstantBuffer& cbuffer = RESOURCE->AllocCBuffer<MaterialColors>();
-	cbuffer.WriteData(m_MaterialColors, 0);
-
 }
 
-void DiffusedMaterial::UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& d3dCPUHandle)
+void DiffusedMaterial::UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, DescriptorHandle& descHandle)
 {
 }
 
@@ -102,10 +99,14 @@ void TexturedMaterial::UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> p
 {
 }
 
-void TexturedMaterial::UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& d3dCPUHandle)
+void TexturedMaterial::UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, DescriptorHandle& descHandle)
 {
-	pd3dDevice->CopyDescriptorsSimple(1, d3dCPUHandle, m_pTextures[0]->GetDescriptorHeap().GetDescriptorHandleFromHeapStart().cpuHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	d3dCPUHandle.ptr += D3DCore::g_nCBVSRVDescriptorIncrementSize;
+	pd3dDevice->CopyDescriptorsSimple(1, descHandle.cpuHandle, m_pTextures[0]->GetDescriptorHeap().GetDescriptorHandleFromHeapStart().cpuHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	descHandle.cpuHandle.ptr += D3DCore::g_nCBVSRVDescriptorIncrementSize;
+
+	pd3dCommandList->SetGraphicsRootDescriptorTable(4, descHandle.gpuHandle);
+	descHandle.gpuHandle.Offset(1, D3DCore::g_nCBVSRVDescriptorIncrementSize);
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -136,11 +137,12 @@ void TexturedNormalMaterial::UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandL
 
 }
 
-void TexturedNormalMaterial::UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& d3dCPUHandle)
+void TexturedNormalMaterial::UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, DescriptorHandle& descHandle)
 {
-	pd3dDevice->CopyDescriptorsSimple(1, d3dCPUHandle, m_pTextures[0]->GetDescriptorHeap().GetDescriptorHandleFromHeapStart().cpuHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	pd3dDevice->CopyDescriptorsSimple(1, descHandle.cpuHandle, m_pTextures[0]->GetDescriptorHeap().GetDescriptorHandleFromHeapStart().cpuHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	descHandle.cpuHandle.ptr += D3DCore::g_nCBVSRVDescriptorIncrementSize;
+	pd3dDevice->CopyDescriptorsSimple(1, descHandle.cpuHandle, m_pTextures[1]->GetDescriptorHeap().GetDescriptorHandleFromHeapStart().cpuHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-	d3dCPUHandle.ptr += D3DCore::g_nCBVSRVDescriptorIncrementSize;
-
-	pd3dDevice->CopyDescriptorsSimple(1, d3dCPUHandle , m_pTextures[1]->GetDescriptorHeap().GetDescriptorHandleFromHeapStart().cpuHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	pd3dCommandList->SetGraphicsRootDescriptorTable(4, descHandle.gpuHandle);
+	descHandle.gpuHandle.Offset(1, D3DCore::g_nCBVSRVDescriptorIncrementSize);
 }

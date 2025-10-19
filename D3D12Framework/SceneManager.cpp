@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "SceneManager.h"
 #include "IntroScene.h"
+#include "TestScene.h"
 
 SceneManager::SceneManager()
 {
@@ -18,15 +19,15 @@ void SceneManager::Initialize()
 
 void SceneManager::ProcessInput() 
 {
-
+	m_upCurrentScene->ProcessInput();
 }
 
 void SceneManager::Update()
 {
-
+	m_upCurrentScene->Update();
 }
 
-void SceneManager::Render()
+void SceneManager::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommansList)
 {
-
+	m_upCurrentScene->Render(pd3dCommansList);
 }

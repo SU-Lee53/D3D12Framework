@@ -105,6 +105,9 @@
     <Filter Include="소스 파일\04. Renderer\RenderPass">
       <UniqueIdentifier>{95f75459-2d4b-4be0-aff9-55b89ba69d66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\03. Game\Light">
+      <UniqueIdentifier>{46a3401c-56b5-4f81-93f0-8335c83b178c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -209,7 +212,7 @@
     <ClInclude Include="TextureManager.h">
       <Filter>소스 파일\02. Managers</Filter>
     </ClInclude>
-    <ClInclude Include="Timer.h">
+    <ClInclude Include="GameTimer.h">
       <Filter>소스 파일\02. Managers</Filter>
     </ClInclude>
     <ClInclude Include="MeshRenderer.h">
@@ -218,8 +221,15 @@
     <ClInclude Include="SceneManager.h">
       <Filter>소스 파일\02. Managers</Filter>
     </ClInclude>
-    <ClInclude Include="IntroScene.h" />
-    <ClInclude Include="FullScreenObject.h" />
+    <ClInclude Include="Light.h">
+      <Filter>소스 파일\03. Game\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="IntroScene.h">
+      <Filter>소스 파일\03. Game\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="FullScreenObject.h">
+      <Filter>소스 파일\03. Game\GameObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameFramework.cpp">
@@ -315,7 +325,7 @@
     <ClCompile Include="TextureManager.cpp">
       <Filter>소스 파일\02. Managers</Filter>
     </ClCompile>
-    <ClCompile Include="Timer.cpp">
+    <ClCompile Include="GameTimer.cpp">
       <Filter>소스 파일\02. Managers</Filter>
     </ClCompile>
     <ClCompile Include="MeshRenderer.cpp">
@@ -324,11 +334,14 @@
     <ClCompile Include="SceneManager.cpp">
       <Filter>소스 파일\02. Managers</Filter>
     </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>소스 파일\03. Game\Light</Filter>
+    </ClCompile>
     <ClCompile Include="IntroScene.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\03. Game\Scene</Filter>
     </ClCompile>
     <ClCompile Include="FullScreenObject.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\03. Game\GameObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

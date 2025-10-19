@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "IntroScene.h"
 #include "FullScreenObject.h"
+#include "TestScene.h"
 
 void IntroScene::BuildObjects()
 {
@@ -22,4 +23,7 @@ void IntroScene::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommansList)
 
 void IntroScene::ProcessInput()
 {
+	if (INPUT->GetButtonDown(VK_SPACE)) {
+		SCENE->ChangeScene<TestScene>();
+	}
 }

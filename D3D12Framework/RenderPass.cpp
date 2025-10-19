@@ -44,13 +44,14 @@ void ForwardPass::Run(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCo
 
 			pd3dDevice->CopyDescriptorsSimple(1, descHandleFromPassStart.cpuHandle, cbuffer.CBVHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 			descHandleFromPassStart.cpuHandle.Offset(1, D3DCore::g_nCBVSRVDescriptorIncrementSize);
+			pd3dCommandList->SetGraphicsRootDescriptorTable(3, descHandleFromPassStart.gpuHandle);
+			descHandleFromPassStart.gpuHandle.Offset(1, D3DCore::g_nCBVSRVDescriptorIncrementSize);
 
 			// Texture (있다면)
-			materials[i]->UpdateShaderVariables(pd3dDevice, descHandleFromPassStart.cpuHandle);	// Texture 가 있다면 Descriptor 가 복사될 것이고 아니면 안될것
-			pd3dCommandList->SetGraphicsRootDescriptorTable(2, descHandleFromPassStart.gpuHandle);
+			materials[i]->UpdateShaderVariables(pd3dDevice, pd3dCommandList, descHandleFromPassStart);	// Texture 가 있다면 Descriptor 가 복사될 것이고 아니면 안될것
 
 			const auto& pipelineStates = materials[i]->GetShader()->GetPipelineStates();
-			pd3dCommandList->SetPipelineState(pipelineStates[1].Get());
+			pd3dCommandList->SetPipelineState(pipelineStates[1].Get());			
 
 			mesh->Render(pd3dCommandList, i, nInstanceCount);
 		}

@@ -40,7 +40,7 @@ public:
 
 public:
 	virtual void UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind) = 0;
-	virtual void UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dCommandList, CD3DX12_CPU_DESCRIPTOR_HANDLE& d3dCPUHandle) = 0;
+	virtual void UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, DescriptorHandle& descHandle) = 0;
 
 protected:
 	MaterialColors m_MaterialColors{};
@@ -59,7 +59,7 @@ public:
 	virtual ~DiffusedMaterial();
 
 	virtual void UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind) override;
-	virtual void UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& d3dCPUHandle) override;
+	virtual void UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, DescriptorHandle& descHandle) override;
 
 
 };
@@ -73,7 +73,7 @@ public:
 	virtual ~TexturedMaterial();
 
 	virtual void UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind) override;
-	virtual void UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& d3dCPUHandle) override;
+	virtual void UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, DescriptorHandle& descHandle) override;
 
 };
 
@@ -86,6 +86,6 @@ public:
 	virtual ~TexturedNormalMaterial();
 
 	virtual void UpdateShaderVariables(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, void* dataForBind) override;
-	virtual void UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, CD3DX12_CPU_DESCRIPTOR_HANDLE& d3dCPUHandle) override;
+	virtual void UpdateShaderVariables(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12GraphicsCommandList> pd3dCommandList, DescriptorHandle& descHandle) override;
 
 };

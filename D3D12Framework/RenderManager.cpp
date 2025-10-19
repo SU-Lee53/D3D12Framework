@@ -31,9 +31,9 @@ ComPtr<ID3D12RootSignature> RenderManager::g_pGlobalRootSignature = nullptr;
 					  Value   |   Camera  |   Lights  |  CubeMap  | World Inst|  Material |  Diffused |   Normal  |  Material |  Diffused | World Inst |  ...
 							  +-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+------------+--
 				  data type   |             Scene Data            | Pass Data |            Object 예시1           |      Object 예시2     | Pass Data  |  ...
-							  +-----------------------------------+-----------+-----------------------------------+-----------------------+------------+--
-				바인딩 함수   | SetGraphicsRootDescriptorTable(0) |   ...(1)  | SetGraphicsRootDescriptorTable(2) |        ...(2)         |   ...(1)   |
-							  +-----------------------------------+-----------+-----------------------------------+-----------------------+------------+
+							  +-----------------------+-----------+-----------+-----------+-----------------------+-----------------------+------------+--
+				바인딩 함수   |          ...(0)       |   ...(1)  |   ...(2)  |   ...(3)  |        ...(4)         |   ...(3)  |   ...(4)  |   ...(1)   |
+							  +-----------------------+-----------+-----------+-----------+-----------------------+-----------------------+------------+
 
 
 */
@@ -52,10 +52,12 @@ RenderManager::RenderManager(ComPtr<ID3D12Device14> pd3dDevice, ComPtr<ID3D12Gra
 	d3dDescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2, 2, 0, 0);	// Per Object (Material, instance base) + 필요한경우 World
 	d3dDescriptorRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 2, 0, 0);	// Diffuse, Normal/Height
 
-	CD3DX12_ROOT_PARAMETER d3dRootParameters[3];
-	d3dRootParameters[0].InitAsDescriptorTable(2, &d3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);	// Scene (Camera & Light, Cubemap(Skybox))
-	d3dRootParameters[1].InitAsDescriptorTable(1, &d3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);	// Pass (World)
-	d3dRootParameters[2].InitAsDescriptorTable(2, &d3dDescriptorRanges[3], D3D12_SHADER_VISIBILITY_ALL);	// Material, Texture(Diffused, Normal/Height)
+	CD3DX12_ROOT_PARAMETER d3dRootParameters[5];
+	d3dRootParameters[0].InitAsDescriptorTable(1, &d3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);	// Scene (Camera & Light)
+	d3dRootParameters[1].InitAsDescriptorTable(1, &d3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_ALL);	// Scene (Cubemap(Skybox))
+	d3dRootParameters[2].InitAsDescriptorTable(1, &d3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);	// Pass (World)
+	d3dRootParameters[3].InitAsDescriptorTable(1, &d3dDescriptorRanges[3], D3D12_SHADER_VISIBILITY_ALL);	// Material, Texture(Diffused, Normal/Height)
+	d3dRootParameters[4].InitAsDescriptorTable(1, &d3dDescriptorRanges[4], D3D12_SHADER_VISIBILITY_ALL);	// Material, Texture(Diffused, Normal/Height)
 
 	CD3DX12_STATIC_SAMPLER_DESC d3dSamplerDesc;
 	d3dSamplerDesc.Init(0);
@@ -134,12 +136,33 @@ void RenderManager::Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList)
 		- 뭐가 더 좋을까 : 나도 모름 2번으로 일단 진행
 	*/
 
+	if (m_InstanceDatas[0].size() == 0 && m_InstanceDatas[1].size() == 0) {
+		return;
+	}
 	pd3dCommandList->SetGraphicsRootSignature(g_pGlobalRootSignature.Get());
 	pd3dCommandList->SetDescriptorHeaps(1, m_DescriptorHeapForDraw.Get().GetAddressOf());
 	
 	// Scene Data 바인딩
 	DescriptorHandle descHandle = m_DescriptorHeapForDraw.GetDescriptorHandleFromHeapStart();
+	
+	CUR_SCENE->GetCamera()->SetViewportsAndScissorRects(pd3dCommandList);
 
+	CB_CAMERA_DATA camData = CUR_SCENE->GetCamera()->MakeCBData();
+	CB_LIGHT_DATA lightData = CUR_SCENE->MakeLightData();
+
+	ConstantBuffer& camCBuffer = RESOURCE->AllocCBuffer<CB_CAMERA_DATA>();
+	ConstantBuffer& lightCBuffer = RESOURCE->AllocCBuffer<CB_LIGHT_DATA>();
+
+	camCBuffer.WriteData(&camData);
+	lightCBuffer.WriteData(&lightData);
+
+	m_pd3dDevice->CopyDescriptorsSimple(1, descHandle.cpuHandle, camCBuffer.CBVHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	descHandle.cpuHandle.Offset(1, D3DCore::g_nCBVSRVDescriptorIncrementSize);
+	m_pd3dDevice->CopyDescriptorsSimple(1, descHandle.cpuHandle, lightCBuffer.CBVHandle, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	descHandle.cpuHandle.Offset(1, D3DCore::g_nCBVSRVDescriptorIncrementSize);
+
+	pd3dCommandList->SetGraphicsRootDescriptorTable(0, descHandle.gpuHandle);
+	descHandle.gpuHandle.Offset(2, D3DCore::g_nCBVSRVDescriptorIncrementSize);
 
 	// Pass 수행
 	// Run 안에서 descHandle 의 offset 이 사용된만큼 움직임

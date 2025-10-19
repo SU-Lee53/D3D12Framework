@@ -24,12 +24,12 @@ void Transform::Update(std::shared_ptr<GameObject> pParent)
 
 void Transform::SetPosition(float x, float y, float z)
 {
-	m_mtxWorld.Translation(Vector3(x, y, z));
+	m_mtxTransform.Translation(Vector3(x, y, z));
 }
 
 void Transform::SetPosition(const Vector3& v3Position)
 {
-	m_mtxWorld.Translation(v3Position);
+	m_mtxTransform.Translation(v3Position);
 }
 
 void Transform::Move(Vector3 v3MoveDirection, float fAmount)

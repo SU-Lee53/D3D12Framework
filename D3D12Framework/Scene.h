@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObject.h"
 #include "Camera.h"
+#include "Light.h"
 
 class Scene {
 public:
@@ -27,6 +28,8 @@ public:
 	std::shared_ptr<Camera> GetCamera() const { return m_pMainCamera; }
 	std::vector<std::shared_ptr<GameObject>>& GetObjectsInScene() { return m_pGameObjects; }
 
+	CB_LIGHT_DATA MakeLightData();
+
 protected:
 	void InitializeObjects();
 	void UpdateObjects();
@@ -34,7 +37,7 @@ protected:
 
 protected:
 	std::vector<std::shared_ptr<GameObject>> m_pGameObjects = {};
-	std::vector<std::shared_ptr<class Light>> m_pLights = {};
+	std::vector<std::shared_ptr<Light>> m_pLights = {};
 	
 	std::shared_ptr<GameObject> m_pPlayer = nullptr;
 	std::shared_ptr<Camera> m_pMainCamera = nullptr;

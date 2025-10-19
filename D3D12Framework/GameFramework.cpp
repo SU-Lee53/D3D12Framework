@@ -9,6 +9,8 @@ std::unique_ptr<RenderManager> GameFramework::g_pRenderManager = nullptr;
 std::unique_ptr<ShaderManager> GameFramework::g_pShaderManager = nullptr;
 std::unique_ptr<TextureManager> GameFramework::g_pTextureManager = nullptr;
 std::unique_ptr<SceneManager> GameFramework::g_pSceneManager = nullptr;
+std::unique_ptr<InputManager> GameFramework::g_pInputManager = nullptr;
+std::unique_ptr<GameTimer> GameFramework::g_pGameTimer = nullptr;
 
 GameFramework::GameFramework(BOOL bEnableDebugLayer, BOOL bEnableGBV)
 {
@@ -20,9 +22,12 @@ GameFramework::GameFramework(BOOL bEnableDebugLayer, BOOL bEnableGBV)
 	g_pTextureManager = std::make_unique<TextureManager>(g_pD3DCore->GetDevice());
 	g_pRenderManager = std::make_unique<RenderManager>(g_pD3DCore->GetDevice(), g_pD3DCore->GetCommandList());
 	g_pSceneManager = std::make_unique<SceneManager>();
+	g_pInputManager = std::make_unique<InputManager>(WinCore::sm_hWnd);
+	g_pGameTimer = std::make_unique<GameTimer>();
 
 	g_pShaderManager->Initialize();
 	g_pSceneManager->Initialize();
+	g_pGameTimer->Start();
 
 	// Init Scene
 	//m_pScene = std::make_shared<TestScene>();
@@ -32,7 +37,13 @@ GameFramework::GameFramework(BOOL bEnableDebugLayer, BOOL bEnableGBV)
 
 void GameFramework::Update()
 {
-	SCENE->Update();
+	g_pGameTimer->Tick();
+
+	g_pRenderManager->Clear();
+
+	g_pInputManager->Update();
+	g_pSceneManager->ProcessInput();
+	g_pSceneManager->Update();
 }
 
 void GameFramework::Render()
@@ -41,7 +52,7 @@ void GameFramework::Render()
 
 	// TODO : Render Logic Here
 	g_pRenderManager->Render(g_pD3DCore->GetCommandList());
-	CUR_SCENE->Render(g_pD3DCore->GetCommandList());
+	g_pSceneManager->Render(g_pD3DCore->GetCommandList());		// 별도의 렌더링 방법을 갖는다면 여기서 렌더링 함
 
 	g_pD3DCore->RenderEnd();
 

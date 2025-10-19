@@ -63,17 +63,17 @@ struct CAMERA
     float3 gvCameraPosition;
 };
 
-cbuffer cbLights : register(b0)
+cbuffer cbCamera : register(b0)
+{
+    CAMERA gCameraData;
+}
+
+cbuffer cbLights : register(b1)
 {
     LIGHT gLights[MAX_LIGHTS];
     float4 gcGlobalAmbientLight;
     int gnLights;
 };
-
-cbuffer cbCamera : register(b1)
-{
-    CAMERA gCameraData;
-}
 
 TextureCube gtxtSkyboxCubeMap: register(t0);
 

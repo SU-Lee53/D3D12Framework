@@ -24,9 +24,11 @@ VS_DIFFUSED_OUTPUT VSDiffusedInstanced(VS_DIFFUSED_INPUT input, uint nInstanceID
 {
     VS_DIFFUSED_OUTPUT output;
     
-    matrix VP = gCameraData.gmtxView * gCameraData.gmtxProjection;
+    //matrix VP = gCameraData.gmtxView * gCameraData.gmtxProjection;
     
-    output.pos = mul(mul(float4(input.pos, 1), gsbInstanceDatas[nInstanceID + gnInstanceBase]), VP);
+    float4 posW = mul(float4(input.pos, 1.0f), gsbInstanceDatas[nInstanceID + gnInstanceBase]);
+    
+    output.pos = mul(mul(posW, gCameraData.gmtxView), gCameraData.gmtxProjection);
     output.color = input.color;
     
     return output;

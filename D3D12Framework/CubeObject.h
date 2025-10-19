@@ -11,4 +11,6 @@ public:
 	virtual void Update() override;
 	virtual void Render(ComPtr<ID3D12GraphicsCommandList> pd3dCommandList) override;
 
+private:
+
 };

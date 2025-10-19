@@ -9,7 +9,7 @@ ResourceManager::ResourceManager(ComPtr<ID3D12Device14> pDevice)
 	CreateCommandList();
 	CreateFence();
 
-	m_pConstantBufferPool = std::make_shared<ConstantBufferPool<MAX_CB_POOL_SIZE>>(pDevice, ConstantBufferSize<Matrix>::value);
+	m_ConstantBufferPool.Initialize(pDevice, ConstantBufferSize<Matrix>::value, 1024);
 }
 
 ResourceManager::~ResourceManager()

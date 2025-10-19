@@ -80,9 +80,9 @@ CubeObject::~CubeObject()
 void CubeObject::Initialize()
 {
 	MESHLOADINFO meshLoadInfo;
-	std::vector<MATERIALLOADINFO> materialLoadInfos;
+	std::vector<MATERIALLOADINFO> materialLoadInfos(1);
 
-	GenerateCube(meshLoadInfo, 5.0f, 5.0f, 5.0f);
+	GenerateCube(meshLoadInfo, 10.0f, 10.0f, 10.0f);
 
 	AddComponent<MeshRenderer>(MeshRenderer::FDiffused(nullptr, meshLoadInfo, materialLoadInfos));
 
@@ -93,6 +93,9 @@ void CubeObject::Initialize()
 
 void CubeObject::Update()
 {
+	float deltaTime = DT;
+	GetTransform().Rotate(GetTransform().GetUp(), 90 * deltaTime);
+
 	GameObject::Update();
 }
 

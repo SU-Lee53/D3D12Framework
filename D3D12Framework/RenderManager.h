@@ -72,7 +72,7 @@ template<typename T> requires std::derived_from<T, MeshRenderer>
 inline void RenderManager::Add(std::shared_ptr<MeshRenderer> pMeshRenderer)
 {
 	const MeshRenderer& key = *pMeshRenderer;
-	Matrix mtxInstanceData = pMeshRenderer->GetOwner()->GetTransform().GetWorldMatrix();
+	Matrix mtxInstanceData = pMeshRenderer->GetOwner()->GetTransform().GetWorldMatrix().Transpose();
 	UINT nRenderType = pMeshRenderer->m_eObjectRenderType;
 
 	auto it = m_InstanceIndexMap[nRenderType].find(key);
